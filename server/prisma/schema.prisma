@@ -1,0 +1,176 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                Int       @id @default(autoincrement())
+  stravaId          String    @unique @map("strava_id")
+  stravaAccessToken String?   @map("strava_access_token")
+  stravaRefreshToken String?  @map("strava_refresh_token")
+  tokenExpiresAt    DateTime? @map("token_expires_at")
+  
+  // Profile info from Strava
+  firstName         String    @map("first_name")
+  lastName          String    @map("last_name")
+  profilePictureUrl String?   @map("profile_picture_url")
+  country           String?
+  state             String?
+  city              String?
+  
+  // App-specific data
+  currency          Int       @default(500) // Starting bonus
+  totalScore        Int       @default(0) @map("total_score") // Collection progress score
+  lastSyncedAt      DateTime? @map("last_synced_at") // Last activity sync
+  
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  
+  // Relations
+  userCards         UserCard[]
+  activities        Activity[]
+  transactions      Transaction[]
+  boosterOpens      BoosterOpen[]
+
+  @@map("users")
+}
+
+model Card {
+  id            Int         @id @default(autoincrement())
+  name          String      // Athlete name
+  sport         String      // Sport category
+  rarity        CardRarity
+  imageUrl      String?     @map("image_url")
+  description   String?     // Notable achievements
+  nationality   String?
+  birthYear     Int?        @map("birth_year")
+  
+  // Collection scoring
+  baseScore     Int         @default(1) @map("base_score") // Points for owning this card
+  
+  createdAt     DateTime    @default(now()) @map("created_at")
+  
+  // Relations
+  userCards     UserCard[]
+  boosterCards  BoosterCard[]
+
+  @@map("cards")
+}
+
+model UserCard {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  cardId    Int      @map("card_id")
+  quantity  Int      @default(1)
+  
+  obtainedAt DateTime @default(now()) @map("obtained_at")
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, cardId])
+  @@map("user_cards")
+}
+
+model Activity {
+  id                  Int      @id @default(autoincrement())
+  userId              Int      @map("user_id")
+  stravaActivityId    String   @unique @map("strava_activity_id")
+  
+  // Activity data from Strava
+  name                String
+  type                ActivityType @map("activity_type")
+  distance            Float    // in meters
+  duration            Int      // in seconds
+  startDate           DateTime @map("start_date")
+  
+  // Currency calculation
+  currencyEarned      Int      @map("currency_earned")
+  processed           Boolean  @default(false) // Whether currency was awarded
+  
+  createdAt           DateTime @default(now()) @map("created_at")
+  
+  // Relations  
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activities")
+}
+
+model Transaction {
+  id          Int               @id @default(autoincrement())
+  userId      Int               @map("user_id")
+  type        TransactionType
+  amount      Int               // Positive for earning, negative for spending
+  description String?
+  
+  // Optional reference to booster purchase
+  boosterOpenId Int?            @unique @map("booster_open_id")
+  
+  createdAt   DateTime          @default(now()) @map("created_at")
+  
+  // Relations
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  boosterOpen BoosterOpen?      @relation(fields: [boosterOpenId], references: [id])
+
+  @@map("transactions")
+}
+
+model BoosterOpen {
+  id          Int           @id @default(autoincrement())
+  userId      Int           @map("user_id")
+  cost        Int           @default(100) // Cost in currency
+  
+  openedAt    DateTime      @default(now()) @map("opened_at")
+  
+  // Relations
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transaction Transaction?
+  cards       BoosterCard[]
+
+  @@map("booster_opens")
+}
+
+model BoosterCard {
+  id            Int         @id @default(autoincrement())
+  boosterOpenId Int         @map("booster_open_id")
+  cardId        Int         @map("card_id")
+  
+  // Relations
+  boosterOpen   BoosterOpen @relation(fields: [boosterOpenId], references: [id], onDelete: Cascade)
+  card          Card        @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@map("booster_cards")
+}
+
+// Enums
+enum CardRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum ActivityType {
+  RUN
+  RIDE // Cycling
+  WALK
+  HIKE
+  OTHER
+}
+
+enum TransactionType {
+  EARNED_ACTIVITY    // Currency from completing activities
+  EARNED_BONUS       // Initial signup bonus, etc.
+  SPENT_BOOSTER      // Spent on booster packs  
+  SPENT_REROLL       // Spent on card rerolls (future feature)
+}
