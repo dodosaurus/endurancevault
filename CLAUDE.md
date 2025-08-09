@@ -1,7 +1,16 @@
 # Endurance Vault - Project Documentation
 
 ## Overview
-A companion mobile app for Strava users that gamifies fitness activities through a collectible card system. Users earn in-app currency based on their activities and use it to purchase booster packs containing legendary athlete cards.
+A companion mobile app for Strava users that gamifies fitness activities through a collectible card system featuring legendary athletes. Users earn in-app currency based on their activities and use it to purchase booster packs.
+
+## 📚 Complete Documentation
+See `/docs/` folder for comprehensive modular documentation:
+- [System Overview](./docs/architecture/system-overview.md)
+- [Features Documentation](./docs/features/)
+- [API Reference](./docs/api/)
+- [Mobile App Structure](./docs/mobile/)
+- [Database Schema](./docs/database/schema.md)
+- [Local Development Setup](./docs/deployment/local-development.md)
 
 ## Tech Stack
 
@@ -156,9 +165,29 @@ npm run test       # Run tests
 3. Additional activity types support
 4. Advanced card trading between users
 
+## 🚀 Current Status
+
+### ✅ Completed
+- **Backend API**: Express.js server with complete Strava OAuth integration
+- **Database**: Supabase PostgreSQL with comprehensive schema via Prisma
+- **Authentication**: Full Strava OAuth flow with JWT tokens
+- **Activity Sync**: Distance-based currency calculation system
+- **Mobile App**: React Native/Expo with navigation and API integration
+- **Documentation**: Modular feature-based documentation structure
+
+### 🔄 In Progress
+- **Booster System**: Backend API implemented, mobile UI pending
+- **Card Collection**: Database schema ready, mobile UI pending
+
+### 📋 Future Features
+- Real-time activity detection via Strava webhooks
+- Push notifications for new activities
+- Card trading and reroll mechanics
+- Social features and leaderboards
+
 ## Notes
 
-- For v1, activities are synced manually when user opens the app
+- Activities are synced manually when user opens the app (v1)
 - Card images will use placeholder/royalty-free images initially
-- Strava webhook integration planned for future versions
 - All monetary transactions are virtual (in-app currency only)
+- Mobile app file watcher issues on macOS (see docs for solutions)
