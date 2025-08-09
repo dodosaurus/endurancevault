@@ -29,8 +29,8 @@ Create environment files with your credentials:
 #### Root .env
 ```bash
 # Database (Supabase)
-DATABASE_URL=postgresql://postgres.znvulsyfuqfztvcdkzyq:MYqDZaq2pFQvwn@aws-0-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true
-DIRECT_URL=postgresql://postgres.znvulsyfuqfztvcdkzyq:MYqDZaq2pFQvwn@aws-0-eu-central-1.pooler.supabase.com:5432/postgres
+DATABASE_URL=pgbouncer=true
+DIRECT_URL=
 
 # Strava API
 STRAVA_CLIENT_ID=your_strava_client_id
