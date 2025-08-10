@@ -92,6 +92,7 @@ model Activity {
   distance            Float    // in meters
   duration            Int      // in seconds
   startDate           DateTime @map("start_date")
+  summaryPolyline     String?  @map("summary_polyline") // Encoded GPS route for map display
   
   // Currency calculation
   currencyEarned      Int      @map("currency_earned")

@@ -84,6 +84,24 @@ export const userApi = {
     }
     return response.data.data;
   },
+
+  getRecentActivities: async (limit: number = 5) => {
+    const response = await api.get<ApiResponse<{
+      id: number;
+      name: string;
+      activityType: string;
+      distance: number;
+      duration: number;
+      startDate: string;
+      currencyEarned: number;
+      mapThumbnailUrl?: string;
+    }[]>>(`/users/activities?limit=${limit}`);
+    
+    if (!response.data.success || !response.data.data) {
+      throw new Error(response.data.error || 'Failed to get activities');
+    }
+    return response.data.data;
+  },
 };
 
 export default api;

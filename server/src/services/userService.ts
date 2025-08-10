@@ -46,6 +46,17 @@ export class UserService {
     });
   }
 
+  async updateStravaTokens(userId: number, accessToken: string, refreshToken: string, expiresAt: Date) {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: {
+        stravaAccessToken: accessToken,
+        stravaRefreshToken: refreshToken,
+        tokenExpiresAt: expiresAt,
+      },
+    });
+  }
+
   generateJWT(userId: number): string {
     return jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: '30d' });
   }

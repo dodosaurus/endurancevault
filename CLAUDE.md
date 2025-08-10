@@ -139,6 +139,10 @@ npm run test       # Run tests
 - `PORT`: Server port (default: 3000)
 - `JWT_SECRET`: JWT signing secret
 
+### Activity Map Thumbnails (Optional)
+- Uses free OpenStreetMap-based service (no API key required)
+- Alternative: `GOOGLE_MAPS_API_KEY` for Google Maps Static API
+
 ## Development Phases
 
 ### Phase 1: Core Setup
@@ -170,8 +174,9 @@ npm run test       # Run tests
 ### ✅ Completed
 - **Backend API**: Express.js server with complete Strava OAuth integration
 - **Database**: Supabase PostgreSQL with comprehensive schema via Prisma
-- **Authentication**: Full Strava OAuth flow with JWT tokens
+- **Authentication**: Full Strava OAuth flow with JWT tokens and automatic token refresh
 - **Activity Sync**: Distance-based currency calculation system
+- **Activity Display**: Recent activities list with map thumbnails (GPS route visualization)
 - **Mobile App**: React Native/Expo with navigation and API integration
 - **Documentation**: Modular feature-based documentation structure
 

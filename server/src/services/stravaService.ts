@@ -36,6 +36,41 @@ export class StravaService {
     return response.data;
   }
 
+  async getActivityStreams(accessToken: string, activityId: string): Promise<any> {
+    try {
+      const response = await axios.get(
+        `https://www.strava.com/api/v3/activities/${activityId}/streams`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          params: {
+            keys: 'latlng', // We only need GPS coordinates
+            key_by_type: true
+          }
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      // If we get a 401 Unauthorized, the token has likely expired
+      if (error.response?.status === 401) {
+        throw new Error('STRAVA_TOKEN_EXPIRED');
+      }
+      // If activity has no GPS data, Strava returns 404 - this is normal
+      if (error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  generateMapThumbnailUrl(polyline: string, size = '200x120'): string {
+    if (!process.env.GOOGLE_MAPS_API_KEY) {
+      return ''; // Return empty if no API key configured
+    }
+    
+    const encodedPolyline = encodeURIComponent(polyline);
+    return `https://maps.googleapis.com/maps/api/staticmap?size=${size}&path=color:0xff6b35ff|weight:3|enc:${encodedPolyline}&key=${process.env.GOOGLE_MAPS_API_KEY}&maptype=roadmap&format=png`;
+  }
+
   async getActivities(accessToken: string, after?: number, perPage = 30): Promise<StravaActivity[]> {
     const params = new URLSearchParams({
       per_page: perPage.toString(),
@@ -45,11 +80,66 @@ export class StravaService {
       params.append('after', after.toString());
     }
 
-    const response = await axios.get(`https://www.strava.com/api/v3/athlete/activities?${params}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+    try {
+      const response = await axios.get(`https://www.strava.com/api/v3/athlete/activities?${params}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
 
-    return response.data;
+      return response.data;
+    } catch (error: any) {
+      // If we get a 401 Unauthorized, the token has likely expired
+      if (error.response?.status === 401) {
+        throw new Error('STRAVA_TOKEN_EXPIRED');
+      }
+      throw error;
+    }
+  }
+
+  async getActivitiesWithRefresh(
+    accessToken: string,
+    refreshToken: string,
+    tokenExpiresAt: Date,
+    onTokenRefresh: (newTokenData: StravaTokenResponse) => Promise<void>,
+    after?: number,
+    perPage = 30
+  ): Promise<StravaActivity[]> {
+    // Check if token is expired or will expire soon (5 minutes buffer)
+    const now = new Date();
+    const expiresWithBuffer = new Date(tokenExpiresAt.getTime() - 5 * 60 * 1000);
+    
+    let currentAccessToken = accessToken;
+    
+    if (now >= expiresWithBuffer) {
+      // Token is expired or will expire soon, refresh it
+      console.log('Token expires at:', tokenExpiresAt, 'Current time:', now, '- refreshing token');
+      try {
+        const newTokenData = await this.refreshToken(refreshToken);
+        await onTokenRefresh(newTokenData);
+        currentAccessToken = newTokenData.access_token;
+        console.log('Token refreshed successfully, new expiry:', new Date(newTokenData.expires_at * 1000));
+      } catch (error) {
+        console.error('Failed to refresh token:', error);
+        throw new Error('Failed to refresh Strava token');
+      }
+    }
+
+    // Try to get activities with the (potentially refreshed) token
+    try {
+      return await this.getActivities(currentAccessToken, after, perPage);
+    } catch (error: any) {
+      // If we still get a token expired error, try refreshing once more
+      if (error.message === 'STRAVA_TOKEN_EXPIRED') {
+        try {
+          const newTokenData = await this.refreshToken(refreshToken);
+          await onTokenRefresh(newTokenData);
+          return await this.getActivities(newTokenData.access_token, after, perPage);
+        } catch (refreshError) {
+          console.error('Failed to refresh token after 401:', refreshError);
+          throw new Error('Authentication failed - please reconnect your Strava account');
+        }
+      }
+      throw error;
+    }
   }
 
   generateAuthUrl(): string {

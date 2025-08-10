@@ -200,8 +200,30 @@ JWT_SECRET=your_jwt_secret_here
 ### Token Security
 - JWT tokens expire after 30 days
 - Strava access tokens stored securely in database
+- **Strava tokens expire after 6 hours** - automatic refresh implemented
 - No sensitive data exposed in JWT payload
 - HTTPS required in production
+
+### Automatic Token Refresh
+Our system automatically handles Strava's 6-hour token expiration:
+
+```typescript
+// Proactive refresh (5-minute buffer before expiry)
+if (now >= tokenExpiresAt - 5 minutes) {
+  const newTokenData = await stravaService.refreshToken(refreshToken);
+  await userService.updateStravaTokens(userId, newTokenData);
+}
+
+// Reactive refresh (on 401 errors)
+catch (error) {
+  if (error.status === 401) {
+    const newTokenData = await stravaService.refreshToken(refreshToken);
+    // Retry request with new token
+  }
+}
+```
+
+**Critical**: Strava refresh tokens are single-use and always change with each refresh.
 
 ### Rate Limiting
 - Strava API limits: 100 requests per 15 minutes

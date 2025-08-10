@@ -134,8 +134,108 @@ const authenticateToken = (req, res, next) => {
 - error: string | null
 ```
 
+## Strava Token Refresh System
+
+### Token Expiration
+**Critical Discovery**: Strava access tokens expire after **6 hours** (not the typical 24+ hours of other OAuth providers).
+
+### Automatic Token Refresh Implementation
+Our system implements automatic token refresh to handle Strava's short token expiration:
+
+#### 1. Proactive Refresh
+```typescript
+// Check if token expires within 5 minutes
+const now = new Date();
+const expiresWithBuffer = new Date(tokenExpiresAt.getTime() - 5 * 60 * 1000);
+
+if (now >= expiresWithBuffer) {
+  // Refresh token proactively
+  const newTokenData = await stravaService.refreshToken(refreshToken);
+  await userService.updateStravaTokens(userId, newTokenData);
+}
+```
+
+#### 2. Reactive Refresh
+```typescript
+try {
+  return await stravaService.getActivities(accessToken);
+} catch (error) {
+  if (error.response?.status === 401) {
+    // Token expired, refresh and retry
+    const newTokenData = await stravaService.refreshToken(refreshToken);
+    await userService.updateStravaTokens(userId, newTokenData);
+    return await stravaService.getActivities(newTokenData.access_token);
+  }
+}
+```
+
+#### 3. Token Refresh Process
+```typescript
+// POST https://www.strava.com/oauth/token
+{
+  client_id: STRAVA_CLIENT_ID,
+  client_secret: STRAVA_CLIENT_SECRET,
+  grant_type: 'refresh_token',
+  refresh_token: current_refresh_token
+}
+
+// Response includes NEW refresh token
+{
+  access_token: "new_access_token",
+  refresh_token: "new_refresh_token", // IMPORTANT: Always different
+  expires_at: timestamp
+}
+```
+
+#### 4. Critical Implementation Details
+- **Refresh tokens are single-use**: Each refresh gives a new refresh token
+- **Always save both tokens**: Access token AND new refresh token must be saved immediately
+- **5-minute buffer**: Refresh proactively to prevent mid-request expiration
+- **Retry logic**: Handle race conditions with automatic retry on 401 errors
+
+#### 5. Database Updates
+```typescript
+async updateStravaTokens(userId: number, accessToken: string, refreshToken: string, expiresAt: Date) {
+  return await prisma.user.update({
+    where: { id: userId },
+    data: {
+      stravaAccessToken: accessToken,
+      stravaRefreshToken: refreshToken, // New refresh token from response
+      tokenExpiresAt: expiresAt,
+    },
+  });
+}
+```
+
+### Usage in API Endpoints
+```typescript
+// Activity sync with automatic token refresh
+const stravaActivities = await stravaService.getActivitiesWithRefresh(
+  user.stravaAccessToken,
+  user.stravaRefreshToken,
+  user.tokenExpiresAt,
+  async (newTokenData) => {
+    await userService.updateStravaTokens(
+      user.id,
+      newTokenData.access_token,
+      newTokenData.refresh_token,
+      new Date(newTokenData.expires_at * 1000)
+    );
+  }
+);
+```
+
+## References
+
+### Official Strava Documentation
+- [Strava Authentication Guide](https://developers.strava.com/docs/authentication/)
+- Key findings:
+  - Access tokens expire after 6 hours
+  - Refresh tokens are single-use and always change
+  - Rate limits: 100 requests per 15 minutes, 1000 requests per day
+
 ## Future Enhancements
-- Token refresh mechanism
+- ✅ Token refresh mechanism (implemented)
 - Remember device functionality  
 - Social login options (Apple, Google)
 - Two-factor authentication

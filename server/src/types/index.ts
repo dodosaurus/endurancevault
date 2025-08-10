@@ -24,6 +24,11 @@ export interface StravaActivity {
   distance: number;
   moving_time: number;
   start_date: string;
+  map?: {
+    id: string;
+    summary_polyline?: string;
+    resource_state: number;
+  };
 }
 
 export interface CreateUserData {
