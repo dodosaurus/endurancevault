@@ -30,7 +30,7 @@ export function MainNavigator() {
               iconName = focused ? 'grid' : 'grid-outline';
               break;
             case 'Shop':
-              iconName = focused ? 'bag' : 'bag-outline';
+              iconName = focused ? 'cart' : 'cart-outline';
               break;
             case 'Profile':
               iconName = focused ? 'person' : 'person-outline';

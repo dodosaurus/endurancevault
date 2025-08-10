@@ -30,8 +30,11 @@ export default {
     },
     scheme: "endurancevault",
     extra: {
-      stravaClientId: process.env.STRAVA_CLIENT_ID,
-      apiBaseUrl: process.env.API_BASE_URL || "http://192.168.0.109:3000"
+      stravaClientId: "112442",
+      apiBaseUrl: "http://192.168.0.109:3000",
+      eas: {
+        projectId: "26bd3ea3-202a-4cd7-8d32-5e2339328414"
+      }
     }
   }
 };

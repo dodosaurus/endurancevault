@@ -17,7 +17,7 @@ export function ShopScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Shop</Text>
         <View style={styles.currencyContainer}>
-          <Ionicons name="diamond" size={20} color="#FFD700" />
+          <Ionicons name="cash" size={20} color="#FFD700" />
           <Text style={styles.currency}>{user?.currency || 0}</Text>
         </View>
       </View>
@@ -25,7 +25,7 @@ export function ShopScreen() {
       <View style={styles.content}>
         <View style={styles.boosterCard}>
           <View style={styles.boosterIcon}>
-            <Ionicons name="bag" size={48} color="#FF6B35" />
+            <Ionicons name="gift" size={48} color="#FF6B35" />
           </View>
           
           <View style={styles.boosterInfo}>
@@ -43,7 +43,7 @@ export function ShopScreen() {
 
           <View style={styles.boosterFooter}>
             <View style={styles.priceContainer}>
-              <Ionicons name="diamond" size={16} color="#FFD700" />
+              <Ionicons name="cash" size={16} color="#FFD700" />
               <Text style={styles.price}>100</Text>
             </View>
             

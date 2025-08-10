@@ -39,7 +39,7 @@ export function HomeScreen() {
         <View style={styles.header}>
           <Text style={styles.greeting}>Welcome back, {user?.firstName}!</Text>
           <View style={styles.currencyContainer}>
-            <Ionicons name="diamond" size={20} color="#FFD700" />
+            <Ionicons name="cash" size={20} color="#FFD700" />
             <Text style={styles.currency}>{user?.currency || 0}</Text>
           </View>
         </View>
@@ -62,7 +62,7 @@ export function HomeScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionCard}>
-            <Ionicons name="bag" size={32} color="#FF6B35" />
+            <Ionicons name="gift" size={32} color="#FF6B35" />
             <Text style={styles.actionTitle}>Open Booster</Text>
             <Text style={styles.actionSubtitle}>100 coins per pack</Text>
           </TouchableOpacity>

@@ -208,6 +208,68 @@ JWT_SECRET=your_jwt_secret_here
 - Consider implementing request queuing for high usage
 - Cache user data to reduce API calls
 
+## Development Requirements
+
+### Mobile App Development Build Required
+
+**⚠️ IMPORTANT: Expo Go cannot be used for OAuth authentication!**
+
+The Strava OAuth flow requires custom URL scheme redirects (`endurancevault://auth?token=...`) which are not supported in Expo Go. You **must** use a development build to test authentication.
+
+#### Setting Up Development Build
+
+1. **Install EAS CLI**:
+   ```bash
+   npm install -g eas-cli
+   ```
+
+2. **Initialize EAS project**:
+   ```bash
+   cd mobile
+   eas project:init
+   ```
+
+3. **Build development APK** (Android):
+   ```bash
+   eas build --profile development --platform android
+   ```
+
+4. **Install on device**:
+   - Download APK from EAS build URL
+   - Install on Android device (enable "Install from unknown sources")
+
+5. **Start development server**:
+   ```bash
+   npm run start  # Uses --dev-client flag
+   ```
+
+#### Why Development Build is Required
+
+- **Custom URL Schemes**: OAuth callbacks use `endurancevault://` scheme
+- **Deep Link Support**: Development builds properly handle deep link redirects
+- **Production-like Environment**: Matches production app behavior
+
+#### OAuth Flow with Development Build
+
+```mermaid
+sequenceDiagram
+    participant DevBuild as Development Build
+    participant Browser as Mobile Browser
+    participant API as Backend API
+    participant Strava as Strava API
+
+    DevBuild->>API: GET /auth/strava/url
+    API->>DevBuild: Return authorization URL
+    
+    DevBuild->>Browser: Open auth URL
+    Browser->>Strava: Show authorization page
+    User->>Strava: Authorize app
+    
+    Strava->>API: GET /auth/strava/callback?code=xxx
+    API->>DevBuild: Redirect endurancevault://auth?token=...
+    DevBuild->>DevBuild: Handle deep link & store token
+```
+
 ## Testing
 
 ### Manual Testing

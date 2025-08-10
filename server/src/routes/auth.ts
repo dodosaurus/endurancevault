@@ -52,24 +52,8 @@ router.get('/strava/callback', async (req, res) => {
     // Generate JWT for the app
     const token = userService.generateJWT(user.id);
 
-    // Redirect to mobile app with token (or return JSON for testing)
-    if (req.query.mobile === 'true') {
-      res.redirect(`endurancevault://auth?token=${token}`);
-    } else {
-      res.json({
-        success: true,
-        data: {
-          token,
-          user: {
-            id: user.id,
-            stravaId: user.stravaId,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            currency: user.currency,
-          },
-        },
-      });
-    }
+    // Redirect to mobile app with token
+    res.redirect(`endurancevault://auth?token=${token}`);
   } catch (error) {
     console.error('Strava auth callback error:', error);
     res.status(500).json({ success: false, error: 'Authentication failed' });
