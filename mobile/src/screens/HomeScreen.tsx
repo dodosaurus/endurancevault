@@ -155,10 +155,11 @@ export function HomeScreen() {
                 <View key={activity.id} style={styles.activityCard}>
                   <View style={styles.activityContent}>
                     {activity.mapThumbnailUrl ? (
-                      <View style={[styles.mapThumbnail, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#E8F5E8', borderWidth: 2, borderColor: '#FF6B35' }]}>
-                        <Ionicons name="map-outline" size={24} color="#FF6B35" />
-                        <Text style={{ fontSize: 8, color: '#666', marginTop: 2 }}>GPS Route</Text>
-                      </View>
+                      <Image 
+                        source={{ uri: activity.mapThumbnailUrl }}
+                        style={styles.mapThumbnail}
+                        resizeMode="cover"
+                      />
                     ) : (
                       <View style={[styles.mapThumbnail, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0' }]}>
                         <Ionicons name="location-outline" size={20} color="#ccc" />

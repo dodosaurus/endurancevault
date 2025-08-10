@@ -86,15 +86,11 @@ export class ActivityService {
   }
 
   generateMapThumbnailUrl(polyline: string, size = '200x120'): string {
-    if (!polyline) {
+    if (!polyline || !process.env.GOOGLE_MAPS_API_KEY) {
       return '';
     }
     
-    // Try Google Maps Static API without API key (legacy support)
-    return `https://maps.googleapis.com/maps/api/staticmap?size=${size}&path=color:0xff6b35ff|weight:3|enc:${polyline}&sensor=false&format=png`;
-    
-    // If that fails, fallback to test images:
-    // return `https://picsum.photos/200/120?random=${Math.floor(Math.random() * 1000)}`;
+    return `https://maps.googleapis.com/maps/api/staticmap?size=${size}&path=color:0xff6b35ff|weight:3|enc:${polyline}&key=${process.env.GOOGLE_MAPS_API_KEY}&maptype=roadmap&format=png`;
   }
 
   async getUserTransactions(userId: number, limit = 20) {

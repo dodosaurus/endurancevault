@@ -1,13 +1,13 @@
 # Activity Map Thumbnails
 
 ## Overview
-The activity map thumbnails feature displays miniature route visualizations for GPS-enabled activities, providing users with a visual representation of their workout routes.
+The activity map thumbnails feature displays miniature route visualizations for GPS-enabled activities, providing users with a visual representation of their workout routes using real map data from Google Maps.
 
-## Implementation
+## Final Implementation
 
 ### Data Source
 - **Strava API**: Activity data includes `map.summary_polyline` - an encoded polyline representing the GPS route
-- **Google Static Maps API**: Converts polylines into static map images
+- **Google Static Maps API**: Converts polylines into static map images with actual roads and terrain
 
 ### Backend Architecture
 
@@ -18,9 +18,9 @@ activities table:
 ```
 
 #### API Flow
-1. **Activity Sync**: Extracts `summary_polyline` from Strava activities
-2. **Storage**: Stores polyline data in database
-3. **Thumbnail Generation**: Creates map URLs using Google Static Maps API
+1. **Activity Sync**: Extracts `summary_polyline` from Strava activities during sync
+2. **Storage**: Stores polyline data in database for future use
+3. **Thumbnail Generation**: Creates map URLs using Google Static Maps API with API key
 4. **API Response**: Includes `mapThumbnailUrl` in activity data
 
 #### Map Thumbnail URL Format
@@ -28,53 +28,74 @@ activities table:
 https://maps.googleapis.com/maps/api/staticmap?
   size=200x120&
   path=color:0xff6b35ff|weight:3|enc:{polyline}&
-  key={API_KEY}&
+  key={GOOGLE_MAPS_API_KEY}&
   maptype=roadmap&
   format=png
 ```
+
+#### Implementation Code
+```typescript
+generateMapThumbnailUrl(polyline: string, size = '200x120'): string {
+  if (!polyline || !process.env.GOOGLE_MAPS_API_KEY) {
+    return '';
+  }
+  
+  return `https://maps.googleapis.com/maps/api/staticmap?size=${size}&path=color:0xff6b35ff|weight:3|enc:${polyline}&key=${process.env.GOOGLE_MAPS_API_KEY}&maptype=roadmap&format=png`;
+}
 
 ### Mobile App Integration
 
 #### Activity Card Layout
 ```typescript
-{activity.mapThumbnailUrl && (
+{activity.mapThumbnailUrl ? (
   <Image 
     source={{ uri: activity.mapThumbnailUrl }}
     style={styles.mapThumbnail}
     resizeMode="cover"
   />
+) : (
+  <View style={[styles.mapThumbnail, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0' }]}>
+    <Ionicons name="location-outline" size={20} color="#ccc" />
+    <Text style={{ fontSize: 8, color: '#999' }}>Indoor</Text>
+  </View>
 )}
 ```
 
-#### Responsive Design
-- Thumbnails: 80x60 pixels
-- Only displayed when GPS data exists
-- Positioned alongside activity information
+#### Visual Design
+- **GPS Activities**: Real map thumbnails (80x60px) positioned on left side of activity cards
+- **Indoor Activities**: Fallback icon with "Indoor" label for activities without GPS data
+- **Route Styling**: Orange polylines (color: #ff6b35) with 3px weight matching app theme
+- **Layout**: Map thumbnails on left, activity details (name, distance, duration, currency) on right
 
 ## Configuration
 
 ### Required Environment Variables
 ```bash
-GOOGLE_MAPS_API_KEY=your_api_key_here
+# Server .env file
+GOOGLE_MAPS_API_KEY=your_google_maps_static_api_key
 ```
 
 ### Google Maps API Setup
-1. Enable **Maps Static API** in Google Cloud Console
-2. Create API key with Maps Static API access
-3. Add API key to server environment variables
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create new project or select existing one
+3. Enable **Maps Static API**
+4. Create API Key in "Credentials" section
+5. Add API key to server `.env` file
+6. **Free Tier**: 28,000 requests/month (sufficient for most apps)
 
-## GPS Data Availability
+## GPS Data Sources
 
-### Activities with GPS Data
-- Running, cycling, walking activities with GPS tracking
-- Outdoor activities recorded with mobile apps
-- Activities with route information
+### Activities with GPS Data (Show Map Thumbnails)
+- Outdoor running, cycling, walking activities with GPS tracking
+- Activities recorded with mobile GPS devices
+- Strava activities containing `summary_polyline` data
+- Any activity with valid route coordinates
 
-### Activities without GPS Data
-- Treadmill runs, stationary bike sessions
-- Manual activity entries
-- Indoor activities without GPS
-- Map thumbnail gracefully omitted
+### Activities without GPS Data (Show Fallback Icon)
+- Treadmill runs, stationary bike sessions, indoor workouts
+- Manually entered activities without GPS data
+- Activities where GPS tracking was disabled
+- Strength training, yoga, or other non-location activities
 
 ## Performance Considerations
 

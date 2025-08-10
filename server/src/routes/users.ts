@@ -44,17 +44,9 @@ router.get('/activities', authenticateToken, async (req: AuthenticatedRequest, r
     const limit = parseInt(req.query.limit as string) || 10;
     const activities = await activityService.getUserActivities(req.user!.id, limit);
 
-    const activitiesWithMaps = activities.map(activity => {
-      const mapUrl = activity.summaryPolyline 
-        ? activityService.generateMapThumbnailUrl(activity.summaryPolyline, '200x120')
-        : null;
-      
-      console.log(`Activity ${activity.id}: ${activity.name}`);
-      console.log(`Has polyline: ${!!activity.summaryPolyline}`);
-      console.log(`Generated URL: ${mapUrl}`);
-      console.log('---');
-
-      return {
+    res.json({
+      success: true,
+      data: activities.map(activity => ({
         id: activity.id,
         name: activity.name,
         activityType: activity.type,
@@ -62,13 +54,10 @@ router.get('/activities', authenticateToken, async (req: AuthenticatedRequest, r
         duration: activity.duration,
         startDate: activity.startDate,
         currencyEarned: activity.currencyEarned,
-        mapThumbnailUrl: mapUrl,
-      };
-    });
-
-    res.json({
-      success: true,
-      data: activitiesWithMaps,
+        mapThumbnailUrl: activity.summaryPolyline 
+          ? activityService.generateMapThumbnailUrl(activity.summaryPolyline, '200x120')
+          : null,
+      })),
     });
   } catch (error) {
     console.error('Error getting user activities:', error);
