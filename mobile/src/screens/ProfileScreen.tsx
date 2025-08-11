@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
@@ -26,7 +26,15 @@ export function ProfileScreen() {
       <View style={styles.content}>
         <View style={styles.header}>
           <View style={[styles.avatar, { backgroundColor: theme.colors.border }]}>
-            <Ionicons name="person" size={48} color={theme.colors.textSecondary} />
+            {user?.profilePictureUrl ? (
+              <Image
+                source={{ uri: user.profilePictureUrl }}
+                style={styles.avatarImage}
+                defaultSource={{ uri: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==' }}
+              />
+            ) : (
+              <Ionicons name="person" size={48} color={theme.colors.textSecondary} />
+            )}
           </View>
           <Text style={[styles.name, { color: theme.colors.text }]}>
             {user?.firstName} {user?.lastName}
@@ -103,6 +111,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
   },
   name: {
     fontSize: 24,

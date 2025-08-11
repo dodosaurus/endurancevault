@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { CardItem, Card } from './CardItem';
+import { CardItem } from './CardItem';
 import { BoosterPackContents } from '../services/api';
 
 interface BoosterOpenModalProps {

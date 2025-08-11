@@ -153,7 +153,7 @@ const BoosterPackCard = ({ userCurrency, onPurchase }: BoosterPackProps) => {
   
   return (
     <View style={styles.boosterCard}>
-      <Ionicons name="bag" size={48} color="#FF6B35" />
+      <Ionicons name="gift" size={48} color="#FF6B35" />
       
       <Text style={styles.title}>Athlete Booster Pack</Text>
       <Text style={styles.description}>
@@ -168,7 +168,7 @@ const BoosterPackCard = ({ userCurrency, onPurchase }: BoosterPackProps) => {
       
       <View style={styles.footer}>
         <View style={styles.price}>
-          <Ionicons name="diamond" size={16} color="#FFD700" />
+          <Ionicons name="cash" size={16} color="#FFD700" />
           <Text>{BOOSTER_CONFIG.cost}</Text>
         </View>
         

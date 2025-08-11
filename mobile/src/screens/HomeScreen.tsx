@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { userApi } from '../services/api';
+import { renderActivityIcon } from '../utils/activityIcons';
 
 interface Activity {
   id: number;
@@ -18,6 +20,7 @@ interface Activity {
 }
 
 export function HomeScreen() {
+  const navigation = useNavigation<any>();
   const { user, refreshUser } = useAuth();
   const { theme } = useTheme();
   const [isSyncing, setIsSyncing] = useState(false);
@@ -61,74 +64,6 @@ export function HomeScreen() {
     }
   };
 
-  const getActivityIcon = (activityType: string) => {
-    const type = activityType.toLowerCase();
-    
-    // Running activities - FontAwesome5 has better running icons
-    if (type === 'run' || type === 'trailrun' || type === 'virtualrun') {
-      return { library: 'FontAwesome5', name: 'running' };
-    }
-    
-    // Cycling activities - MaterialIcons has good bike icons
-    if (type === 'ride' || type === 'mountainbikeride' || type === 'gravelride' || 
-        type === 'virtualride' || type === 'ebikeride' || type === 'emountainbikeride') {
-      return { library: 'MaterialIcons', name: 'directions-bike' };
-    }
-    
-    // Walking activities - FontAwesome5 has walking icon
-    if (type === 'walk') {
-      return { library: 'FontAwesome5', name: 'walking' };
-    }
-    
-    // Hiking activities - FontAwesome5 has hiking icon
-    if (type === 'hike') {
-      return { library: 'FontAwesome5', name: 'hiking' };
-    }
-    
-    // Swimming activities - FontAwesome5 has swimmer
-    if (type === 'swim') {
-      return { library: 'FontAwesome5', name: 'swimmer' };
-    }
-    
-    // Water sports
-    if (type === 'kayaking' || type === 'canoeing' || type === 'rowing' || type === 'standuppaddling') {
-      return { library: 'Ionicons', name: 'boat-outline' };
-    }
-    
-    // Winter sports
-    if (type === 'alpineski' || type === 'backcountryski' || type === 'nordicski' || 
-        type === 'snowboard' || type === 'snowshoe') {
-      return { library: 'FontAwesome5', name: 'skiing' };
-    }
-    
-    // Strength training
-    if (type === 'weighttraining' || type === 'crossfit') {
-      return { library: 'FontAwesome5', name: 'dumbbell' };
-    }
-    
-    // Yoga and flexibility
-    if (type === 'yoga' || type === 'pilates') {
-      return { library: 'MaterialIcons', name: 'self-improvement' };
-    }
-    
-    // Ball sports
-    if (type === 'tennis' || type === 'badminton' || type === 'tabletennis' || 
-        type === 'pickleball' || type === 'squash' || type === 'racquetball') {
-      return { library: 'FontAwesome5', name: 'table-tennis' };
-    }
-    
-    if (type === 'soccer') {
-      return { library: 'FontAwesome5', name: 'futbol' };
-    }
-    
-    // Climbing
-    if (type === 'rockclimbing') {
-      return { library: 'FontAwesome5', name: 'mountain' };
-    }
-    
-    // Default for other activities
-    return { library: 'Ionicons', name: 'fitness-outline' };
-  };
 
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -187,7 +122,10 @@ export function HomeScreen() {
             <Text style={[styles.actionSubtitle, { color: theme.colors.textSecondary }]}>Get currency from recent workouts</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.actionCard, { backgroundColor: theme.colors.surface }]}>
+          <TouchableOpacity 
+            style={[styles.actionCard, { backgroundColor: theme.colors.surface }]}
+            onPress={() => navigation.navigate('Shop')}
+          >
             <Ionicons name="gift" size={32} color={theme.colors.primary} />
             <Text style={[styles.actionTitle, { color: theme.colors.text }]}>Open Booster</Text>
             <Text style={[styles.actionSubtitle, { color: theme.colors.textSecondary }]}>100 coins per pack</Text>
@@ -226,16 +164,7 @@ export function HomeScreen() {
                     )}
                     <View style={styles.activityInfo}>
                       <View style={styles.activityHeader}>
-                        {(() => {
-                          const iconInfo = getActivityIcon(activity.activityType);
-                          if (iconInfo.library === 'FontAwesome5') {
-                            return <FontAwesome5 name={iconInfo.name} size={20} color={theme.colors.primary} />;
-                          } else if (iconInfo.library === 'MaterialIcons') {
-                            return <MaterialIcons name={iconInfo.name} size={20} color={theme.colors.primary} />;
-                          } else {
-                            return <Ionicons name={iconInfo.name} size={20} color={theme.colors.primary} />;
-                          }
-                        })()}
+                        {renderActivityIcon(activity.activityType, 20, theme.colors.primary)}
                         <Text style={[styles.activityName, { color: theme.colors.text }]} numberOfLines={1}>
                           {activity.name}
                         </Text>
