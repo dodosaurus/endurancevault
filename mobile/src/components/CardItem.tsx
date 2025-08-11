@@ -40,7 +40,7 @@ const RARITY_GRADIENTS = {
   LEGENDARY: ['#FFA500', '#FF8C00'],
 };
 
-export function CardItem({ card, onPress, style }: CardItemProps) {
+export const CardItem = React.memo(({ card, onPress, style }: CardItemProps) => {
   const rarityColor = RARITY_COLORS[card.rarity];
   const isOwned = card.owned && card.owned.quantity > 0;
 
@@ -102,7 +102,9 @@ export function CardItem({ card, onPress, style }: CardItemProps) {
       </View>
     </TouchableOpacity>
   );
-}
+});
+
+CardItem.displayName = 'CardItem';
 
 const styles = StyleSheet.create({
   container: {

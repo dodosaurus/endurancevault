@@ -1,3 +1,4 @@
+import React from 'react';
 import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 
 export interface ActivityIconInfo {
@@ -74,7 +75,7 @@ export const getActivityIcon = (activityType: string): ActivityIconInfo => {
   return { library: 'Ionicons', name: 'fitness-outline' };
 };
 
-export const renderActivityIcon = (activityType: string, size: number, color: string) => {
+export const renderActivityIcon = (activityType: string, size: number, color: string): React.JSX.Element => {
   const iconInfo = getActivityIcon(activityType);
   
   switch (iconInfo.library) {

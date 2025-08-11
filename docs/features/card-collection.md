@@ -1,7 +1,7 @@
 # Card Collection System
 
 ## Overview
-The card collection features 100 legendary athletes from various sports, organized into 5 rarity tiers. Users collect cards by opening booster packs purchased with in-app currency.
+The card collection features 100 legendary endurance athletes specializing in cycling, road running (marathons, track), and trail/ultra running, organized into 5 rarity tiers. Users collect cards by opening booster packs purchased with in-app currency.
 
 ## Card Collection Structure
 
@@ -10,11 +10,11 @@ The card collection features 100 legendary athletes from various sports, organiz
 #### Rarity Distribution
 ```typescript
 enum CardRarity {
-  COMMON = 50 cards,      // Regional/national champions
-  UNCOMMON = 30 cards,    // Olympic medalists, major tournament winners
-  RARE = 15 cards,        // Hall of famers, record holders
-  EPIC = 4 cards,         // Modern legends (Jordan, Serena, Messi, etc.)
-  LEGENDARY = 1 card      // Ultimate GOAT card
+  COMMON = 49 cards,      // Strong endurance athletes across disciplines
+  UNCOMMON = 31 cards,    // Notable champions and major race winners
+  RARE = 15 cards,        // Hall of famers, record holders, legends
+  EPIC = 4 cards,         // Endurance icons (Merckx, Jornet, Zátopek, etc.)
+  LEGENDARY = 1 card      // Ultimate endurance GOAT (Eliud Kipchoge)
 }
 ```
 
@@ -36,7 +36,7 @@ const rarityColors = {
 cards:
   id: serial primary key
   name: varchar -- Athlete name
-  sport: varchar -- Sport category
+  sport: varchar -- Cycling, Marathon, Distance Running, Trail/Ultra Running
   rarity: enum (COMMON, UNCOMMON, RARE, EPIC, LEGENDARY)
   image_url: varchar -- Card image URL
   description: text -- Notable achievements
@@ -50,13 +50,13 @@ cards:
 ```typescript
 interface Card {
   id: number;
-  name: string;           // "Michael Jordan"
-  sport: string;          // "Basketball"
-  rarity: CardRarity;     // EPIC
+  name: string;           // "Eliud Kipchoge"
+  sport: string;          // "Marathon"
+  rarity: CardRarity;     // LEGENDARY
   imageUrl?: string;      // Card artwork
-  description?: string;   // "6x NBA Champion, 5x MVP"
-  nationality?: string;   // "USA"
-  birthYear?: number;     // 1963
+  description?: string;   // "Marathon GOAT - 2:01:09 WR, 2x Olympic champion"
+  nationality?: string;   // "Kenya"
+  birthYear?: number;     // 1984
   baseScore: number;      // Points for collection score
 }
 ```
@@ -133,15 +133,15 @@ const getCollectionProgress = async (userId: number) => {
 };
 ```
 
-## Sample Athletes by Rarity
+## Sample Endurance Athletes by Rarity
 
 ### Legendary (1 card)
 ```typescript
 {
-  name: "Muhammad Ali",
-  sport: "Boxing", 
-  description: "3x World Heavyweight Champion, Olympic Gold Medalist",
-  nationality: "USA",
+  name: "Eliud Kipchoge",
+  sport: "Marathon", 
+  description: "Marathon GOAT - 2:01:09 WR, 2x Olympic champion, first sub-2 hour",
+  nationality: "Kenya",
   rarity: "LEGENDARY"
 }
 ```
@@ -149,21 +149,21 @@ const getCollectionProgress = async (userId: number) => {
 ### Epic (4 cards)
 ```typescript
 [
-  { name: "Michael Jordan", sport: "Basketball", nationality: "USA" },
-  { name: "Serena Williams", sport: "Tennis", nationality: "USA" },
-  { name: "Lionel Messi", sport: "Football", nationality: "Argentina" },
-  { name: "Usain Bolt", sport: "Track & Field", nationality: "Jamaica" }
+  { name: "Eddy Merckx", sport: "Cycling", nationality: "Belgium" },
+  { name: "Kilian Jornet", sport: "Trail/Ultra Running", nationality: "Spain" },
+  { name: "Emil Zátopek", sport: "Distance Running", nationality: "Czechoslovakia" },
+  { name: "Haile Gebrselassie", sport: "Marathon", nationality: "Ethiopia" }
 ]
 ```
 
 ### Rare (15 cards)
-Examples: Wayne Gretzky, Tiger Woods, Tom Brady, Roger Federer, etc.
+Examples: Bernard Hinault (cycling), Paula Radcliffe (marathon), Ann Trason (ultra), etc.
 
-### Uncommon (30 cards)  
-Examples: Olympic gold medalists, major tournament winners
+### Uncommon (31 cards)  
+Examples: Tadej Pogačar (cycling), Mo Farah (distance), François D'Haene (ultra trail)
 
-### Common (50 cards)
-Examples: National champions, regional sports heroes
+### Common (49 cards)
+Examples: Jonas Vingegaard (cycling), Ryan Hall (marathon), Jim Walmsley (ultra trail)
 
 ## Collection UI Features
 
@@ -224,7 +224,7 @@ const ProgressStats = ({ progress }) => {
 
 ### Filter Options
 - **By Rarity**: Show only specific rarity cards
-- **By Sport**: Filter by sport category
+- **By Sport**: Filter by Cycling, Marathon, Distance Running, Trail/Ultra Running
 - **By Ownership**: Owned vs. not owned
 - **By Nationality**: Filter by country
 

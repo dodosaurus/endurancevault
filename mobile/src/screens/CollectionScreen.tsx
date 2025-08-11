@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,36 +26,9 @@ export function CollectionScreen() {
     try {
       if (refresh) setRefreshing(true);
       
-      const filters = filter === 'owned' ? { owned: true } : {};
-      const response = await cardApi.getUserCollection(filters);
+      const response = await cardApi.getUserCollection({});
       
-      let sortedCollection = [...response.collection];
-      
-      // Apply sorting
-      sortedCollection.sort((a, b) => {
-        switch (sortBy) {
-          case 'rarity':
-            const rarityOrder = { 'LEGENDARY': 5, 'EPIC': 4, 'RARE': 3, 'UNCOMMON': 2, 'COMMON': 1 };
-            return rarityOrder[b.rarity] - rarityOrder[a.rarity];
-          case 'name':
-            return a.name.localeCompare(b.name);
-          case 'sport':
-            return a.sport.localeCompare(b.sport);
-          case 'score':
-            return b.baseScore - a.baseScore;
-          default:
-            return 0;
-        }
-      });
-
-      // Apply filter
-      if (filter === 'owned') {
-        sortedCollection = sortedCollection.filter(card => card.owned && card.owned.quantity > 0);
-      } else if (filter === 'unowned') {
-        sortedCollection = sortedCollection.filter(card => !card.owned || card.owned.quantity === 0);
-      }
-
-      setCollection(sortedCollection);
+      setCollection(response.collection);
       setStats(response.stats);
     } catch (error) {
       console.error('Failed to load collection:', error);
@@ -76,9 +49,42 @@ export function CollectionScreen() {
     loadCollection(true);
   };
 
-  const handleCardPress = (card: Card) => {
+  const handleCardPress = useCallback((card: Card) => {
     setSelectedCard(card);
-  };
+  }, []);
+
+  // Memoize the filtered and sorted collection to avoid expensive re-computations
+  const processedCollection = useMemo(() => {
+    if (!collection.length) return collection;
+
+    let filtered = [...collection];
+    
+    // Apply filter
+    if (filter === 'owned') {
+      filtered = filtered.filter(card => card.owned && card.owned.quantity > 0);
+    } else if (filter === 'unowned') {
+      filtered = filtered.filter(card => !card.owned || card.owned.quantity === 0);
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'rarity':
+          const rarityOrder = { 'LEGENDARY': 5, 'EPIC': 4, 'RARE': 3, 'UNCOMMON': 2, 'COMMON': 1 };
+          return rarityOrder[b.rarity] - rarityOrder[a.rarity];
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'sport':
+          return a.sport.localeCompare(b.sport);
+        case 'score':
+          return b.baseScore - a.baseScore;
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [collection, filter, sortBy]);
 
   const getFilterButtonStyle = (filterType: FilterType) => [
     styles.filterButton,
@@ -198,9 +204,9 @@ export function CollectionScreen() {
           <Ionicons name="hourglass" size={48} color="#ccc" />
           <Text style={styles.loadingText}>Loading collection...</Text>
         </View>
-      ) : collection.length > 0 ? (
+      ) : processedCollection.length > 0 ? (
         <CardGrid 
-          cards={collection}
+          cards={processedCollection}
           onCardPress={handleCardPress}
           style={styles.cardGrid}
         />
