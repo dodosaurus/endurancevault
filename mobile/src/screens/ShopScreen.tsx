@@ -3,11 +3,13 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { boosterApi, BoosterPackContents } from '../services/api';
 import { BoosterOpenModal } from '../components/BoosterOpenModal';
 
 export function ShopScreen() {
   const { user, refreshUser } = useAuth();
+  const { theme } = useTheme();
   const [isOpening, setIsOpening] = useState(false);
   const [showBoosterResult, setShowBoosterResult] = useState(false);
   const [lastOpenedPack, setLastOpenedPack] = useState<BoosterPackContents | null>(null);
@@ -52,44 +54,45 @@ export function ShopScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Shop</Text>
-        <View style={styles.currencyContainer}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
+        <Text style={[styles.title, { color: theme.colors.text }]}>Shop</Text>
+        <View style={[styles.currencyContainer, { backgroundColor: theme.colors.background }]}>
           <Ionicons name="cash" size={20} color="#FFD700" />
-          <Text style={styles.currency}>{user?.currency || 0}</Text>
+          <Text style={[styles.currency, { color: theme.colors.text }]}>{user?.currency || 0}</Text>
         </View>
       </View>
 
       <View style={styles.content}>
-        <View style={styles.boosterCard}>
+        <View style={[styles.boosterCard, { backgroundColor: theme.colors.surface }]}>
           <View style={styles.boosterIcon}>
-            <Ionicons name="gift" size={48} color="#FF6B35" />
+            <Ionicons name="gift" size={48} color={theme.colors.primary} />
           </View>
           
           <View style={styles.boosterInfo}>
-            <Text style={styles.boosterTitle}>Athlete Booster Pack</Text>
-            <Text style={styles.boosterDescription}>
+            <Text style={[styles.boosterTitle, { color: theme.colors.text }]}>Athlete Booster Pack</Text>
+            <Text style={[styles.boosterDescription, { color: theme.colors.textSecondary }]}>
               Contains 4 cards with a chance for rare athletes
             </Text>
             
             <View style={styles.boosterContents}>
-              <Text style={styles.contentText}>• 3 Common cards guaranteed</Text>
-              <Text style={styles.contentText}>• 1 card with rarity bonus chance</Text>
-              <Text style={styles.contentText}>• 0.5% chance for Legendary card!</Text>
+              <Text style={[styles.contentText, { color: theme.colors.textSecondary }]}>• 3 Common cards guaranteed</Text>
+              <Text style={[styles.contentText, { color: theme.colors.textSecondary }]}>• 1 card with rarity bonus chance</Text>
+              <Text style={[styles.contentText, { color: theme.colors.textSecondary }]}>• 0.5% chance for Legendary card!</Text>
             </View>
           </View>
 
           <View style={styles.boosterFooter}>
             <View style={styles.priceContainer}>
               <Ionicons name="cash" size={16} color="#FFD700" />
-              <Text style={styles.price}>100</Text>
+              <Text style={[styles.price, { color: theme.colors.text }]}>100</Text>
             </View>
             
             <TouchableOpacity 
               style={[
                 styles.buyButton,
-                ((user?.currency || 0) < 100 || isOpening) && styles.buyButtonDisabled
+                { backgroundColor: theme.colors.primary },
+                ((user?.currency || 0) < 100 || isOpening) && { backgroundColor: theme.colors.disabled }
               ]}
               onPress={handleOpenBooster}
               disabled={(user?.currency || 0) < 100 || isOpening}
@@ -112,9 +115,9 @@ export function ShopScreen() {
         </View>
 
         {(user?.currency || 0) < 100 && (
-          <View style={styles.insufficientFunds}>
-            <Ionicons name="warning" size={24} color="#FF6B35" />
-            <Text style={styles.insufficientText}>
+          <View style={[styles.insufficientFunds, { backgroundColor: theme.isDark ? theme.colors.surface : '#FFF3E0' }]}>
+            <Ionicons name="warning" size={24} color={theme.colors.primary} />
+            <Text style={[styles.insufficientText, { color: theme.isDark ? theme.colors.text : '#E65100' }]}>
               Not enough currency. Complete activities to earn more!
             </Text>
           </View>
@@ -134,7 +137,6 @@ export function ShopScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   header: {
     flexDirection: 'row',
@@ -142,19 +144,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: 'white',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
   },
   currencyContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -163,7 +161,6 @@ const styles = StyleSheet.create({
   currency: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
   },
   content: {
     flex: 1,
@@ -171,7 +168,6 @@ const styles = StyleSheet.create({
     paddingTop: 24,
   },
   boosterCard: {
-    backgroundColor: 'white',
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
@@ -186,13 +182,11 @@ const styles = StyleSheet.create({
   boosterTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
     textAlign: 'center',
     marginBottom: 8,
   },
   boosterDescription: {
     fontSize: 14,
-    color: '#666',
     textAlign: 'center',
     marginBottom: 16,
   },
@@ -201,7 +195,6 @@ const styles = StyleSheet.create({
   },
   contentText: {
     fontSize: 12,
-    color: '#888',
   },
   boosterFooter: {
     flexDirection: 'row',
@@ -216,24 +209,16 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
   },
   buyButton: {
-    backgroundColor: '#FF6B35',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
-  },
-  buyButtonDisabled: {
-    backgroundColor: '#ccc',
   },
   buyButtonText: {
     color: 'white',
     fontWeight: '600',
     fontSize: 16,
-  },
-  buyButtonTextDisabled: {
-    color: '#999',
   },
   buttonLoadingContainer: {
     flexDirection: 'row',
@@ -243,7 +228,6 @@ const styles = StyleSheet.create({
   insufficientFunds: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF3E0',
     padding: 16,
     borderRadius: 12,
     gap: 12,
@@ -251,6 +235,5 @@ const styles = StyleSheet.create({
   insufficientText: {
     flex: 1,
     fontSize: 14,
-    color: '#E65100',
   },
 });

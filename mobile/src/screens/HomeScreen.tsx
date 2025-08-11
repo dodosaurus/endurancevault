@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { userApi } from '../services/api';
 
 interface Activity {
@@ -18,6 +19,7 @@ interface Activity {
 
 export function HomeScreen() {
   const { user, refreshUser } = useAuth();
+  const { theme } = useTheme();
   const [isSyncing, setIsSyncing] = useState(false);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(false);
@@ -155,69 +157,71 @@ export function HomeScreen() {
     }
   }, [user]);
 
+  const dynamicStyles = createDynamicStyles(theme);
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <ScrollView style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.greeting}>Welcome back, {user?.firstName}!</Text>
-          <View style={styles.currencyContainer}>
+          <Text style={[styles.greeting, { color: theme.colors.text }]}>Welcome back, {user?.firstName}!</Text>
+          <View style={[styles.currencyContainer, { backgroundColor: theme.colors.surface }]}>
             <Ionicons name="cash" size={20} color="#FFD700" />
-            <Text style={styles.currency}>{user?.currency || 0}</Text>
+            <Text style={[styles.currency, { color: theme.colors.text }]}>{user?.currency || 0}</Text>
           </View>
         </View>
 
         <View style={styles.quickActions}>
           <TouchableOpacity 
-            style={[styles.actionCard, isSyncing && styles.actionCardDisabled]}
+            style={[styles.actionCard, { backgroundColor: theme.colors.surface }, isSyncing && styles.actionCardDisabled]}
             onPress={handleSyncActivities}
             disabled={isSyncing}
           >
             <Ionicons 
               name={isSyncing ? "hourglass" : "sync"} 
               size={32} 
-              color={isSyncing ? "#ccc" : "#FF6B35"} 
+              color={isSyncing ? theme.colors.disabled : theme.colors.primary} 
             />
-            <Text style={[styles.actionTitle, isSyncing && styles.actionTitleDisabled]}>
+            <Text style={[styles.actionTitle, { color: theme.colors.text }, isSyncing && { color: theme.colors.disabled }]}>
               {isSyncing ? 'Syncing...' : 'Sync Activities'}
             </Text>
-            <Text style={styles.actionSubtitle}>Get currency from recent workouts</Text>
+            <Text style={[styles.actionSubtitle, { color: theme.colors.textSecondary }]}>Get currency from recent workouts</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionCard}>
-            <Ionicons name="gift" size={32} color="#FF6B35" />
-            <Text style={styles.actionTitle}>Open Booster</Text>
-            <Text style={styles.actionSubtitle}>100 coins per pack</Text>
+          <TouchableOpacity style={[styles.actionCard, { backgroundColor: theme.colors.surface }]}>
+            <Ionicons name="gift" size={32} color={theme.colors.primary} />
+            <Text style={[styles.actionTitle, { color: theme.colors.text }]}>Open Booster</Text>
+            <Text style={[styles.actionSubtitle, { color: theme.colors.textSecondary }]}>100 coins per pack</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Activity</Text>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Recent Activity</Text>
           {isLoadingActivities ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="hourglass" size={48} color="#ccc" />
-              <Text style={styles.emptyText}>Loading activities...</Text>
+            <View style={[styles.emptyState, { backgroundColor: theme.colors.surface }]}>
+              <Ionicons name="hourglass" size={48} color={theme.colors.disabled} />
+              <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>Loading activities...</Text>
             </View>
           ) : activities.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="fitness" size={48} color="#ccc" />
-              <Text style={styles.emptyText}>No recent activities</Text>
-              <Text style={styles.emptySubtext}>Sync your Strava activities to earn currency</Text>
+            <View style={[styles.emptyState, { backgroundColor: theme.colors.surface }]}>
+              <Ionicons name="fitness" size={48} color={theme.colors.disabled} />
+              <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>No recent activities</Text>
+              <Text style={[styles.emptySubtext, { color: theme.colors.textSecondary }]}>Sync your Strava activities to earn currency</Text>
             </View>
           ) : (
             <View style={styles.activityList}>
               {activities.map((activity) => (
-                <View key={activity.id} style={styles.activityCard}>
+                <View key={activity.id} style={[styles.activityCard, { backgroundColor: theme.colors.surface }]}>
                   <View style={styles.activityContent}>
                     {activity.mapThumbnailUrl ? (
                       <Image 
                         source={{ uri: activity.mapThumbnailUrl }}
-                        style={styles.mapThumbnail}
+                        style={dynamicStyles.mapThumbnail}
                         resizeMode="cover"
                       />
                     ) : (
-                      <View style={[styles.mapThumbnail, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0' }]}>
-                        <Ionicons name="location-outline" size={20} color="#ccc" />
-                        <Text style={{ fontSize: 8, color: '#999' }}>Indoor</Text>
+                      <View style={[dynamicStyles.mapThumbnail, { justifyContent: 'center', alignItems: 'center' }]}>
+                        <Ionicons name="location-outline" size={20} color={theme.colors.disabled} />
+                        <Text style={{ fontSize: 8, color: theme.colors.textSecondary }}>Indoor</Text>
                       </View>
                     )}
                     <View style={styles.activityInfo}>
@@ -225,30 +229,30 @@ export function HomeScreen() {
                         {(() => {
                           const iconInfo = getActivityIcon(activity.activityType);
                           if (iconInfo.library === 'FontAwesome5') {
-                            return <FontAwesome5 name={iconInfo.name} size={20} color="#FF6B35" />;
+                            return <FontAwesome5 name={iconInfo.name} size={20} color={theme.colors.primary} />;
                           } else if (iconInfo.library === 'MaterialIcons') {
-                            return <MaterialIcons name={iconInfo.name} size={20} color="#FF6B35" />;
+                            return <MaterialIcons name={iconInfo.name} size={20} color={theme.colors.primary} />;
                           } else {
-                            return <Ionicons name={iconInfo.name} size={20} color="#FF6B35" />;
+                            return <Ionicons name={iconInfo.name} size={20} color={theme.colors.primary} />;
                           }
                         })()}
-                        <Text style={styles.activityName} numberOfLines={1}>
+                        <Text style={[styles.activityName, { color: theme.colors.text }]} numberOfLines={1}>
                           {activity.name}
                         </Text>
                       </View>
                       <View style={styles.activityStats}>
-                        <Text style={styles.activityDistance}>
+                        <Text style={[styles.activityDistance, { color: theme.colors.textSecondary }]}>
                           {(activity.distance / 1000).toFixed(1)} km
                         </Text>
-                        <Text style={styles.activityDuration}>
+                        <Text style={[styles.activityDuration, { color: theme.colors.textSecondary }]}>
                           {formatDuration(activity.duration)}
                         </Text>
                         <View style={styles.activityCurrency}>
                           <Ionicons name="cash" size={14} color="#FFD700" />
-                          <Text style={styles.currencyEarned}>+{activity.currencyEarned}</Text>
+                          <Text style={[styles.currencyEarned, { color: theme.colors.secondary }]}>+{activity.currencyEarned}</Text>
                         </View>
                       </View>
-                      <Text style={styles.activityDate}>
+                      <Text style={[styles.activityDate, { color: theme.colors.textSecondary }]}>
                         {formatActivityDate(activity.startDate)}
                       </Text>
                     </View>
@@ -263,10 +267,18 @@ export function HomeScreen() {
   );
 }
 
+const createDynamicStyles = (theme: any) => StyleSheet.create({
+  mapThumbnail: {
+    width: 120,
+    height: 90,
+    borderRadius: 8,
+    backgroundColor: theme.colors.border,
+  },
+});
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   content: {
     flex: 1,
@@ -281,12 +293,10 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
   },
   currencyContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -295,7 +305,6 @@ const styles = StyleSheet.create({
   currency: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
   },
   quickActions: {
     flexDirection: 'row',
@@ -304,7 +313,6 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     flex: 1,
-    backgroundColor: 'white',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -313,17 +321,12 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
-  },
-  actionTitleDisabled: {
-    color: '#ccc',
   },
   actionCardDisabled: {
     opacity: 0.6,
   },
   actionSubtitle: {
     fontSize: 12,
-    color: '#666',
     textAlign: 'center',
   },
   section: {
@@ -332,11 +335,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
     marginBottom: 12,
   },
   emptyState: {
-    backgroundColor: 'white',
     padding: 32,
     borderRadius: 12,
     alignItems: 'center',
@@ -345,18 +346,15 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#666',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#999',
     textAlign: 'center',
   },
   activityList: {
     gap: 12,
   },
   activityCard: {
-    backgroundColor: 'white',
     padding: 16,
     borderRadius: 12,
   },
@@ -378,7 +376,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
   },
   activityStats: {
     flexDirection: 'row',
@@ -388,11 +385,9 @@ const styles = StyleSheet.create({
   activityDistance: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#666',
   },
   activityDuration: {
     fontSize: 14,
-    color: '#666',
   },
   activityCurrency: {
     flexDirection: 'row',
@@ -403,16 +398,8 @@ const styles = StyleSheet.create({
   currencyEarned: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#FFD700',
   },
   activityDate: {
     fontSize: 12,
-    color: '#999',
-  },
-  mapThumbnail: {
-    width: 120,
-    height: 90,
-    borderRadius: 8,
-    backgroundColor: '#f0f0f0',
   },
 });

@@ -3,9 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export function ProfileScreen() {
   const { user, signOut } = useAuth();
+  const { theme } = useTheme();
 
   const handleSignOut = () => {
     Alert.alert(
@@ -19,55 +22,61 @@ export function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <View style={styles.avatar}>
-            <Ionicons name="person" size={48} color="#666" />
+          <View style={[styles.avatar, { backgroundColor: theme.colors.border }]}>
+            <Ionicons name="person" size={48} color={theme.colors.textSecondary} />
           </View>
-          <Text style={styles.name}>
+          <Text style={[styles.name, { color: theme.colors.text }]}>
             {user?.firstName} {user?.lastName}
           </Text>
-          <Text style={styles.subtitle}>Strava Athlete</Text>
+          <Text style={[styles.subtitle, { color: theme.colors.textSecondary }]}>Strava Athlete</Text>
         </View>
 
         <View style={styles.stats}>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>{user?.currency || 0}</Text>
-            <Text style={styles.statLabel}>Currency</Text>
+          <View style={[styles.statCard, { backgroundColor: theme.colors.surface }]}>
+            <Text style={[styles.statValue, { color: theme.colors.primary }]}>{user?.currency || 0}</Text>
+            <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>Currency</Text>
           </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>0</Text>
-            <Text style={styles.statLabel}>Cards Owned</Text>
+          <View style={[styles.statCard, { backgroundColor: theme.colors.surface }]}>
+            <Text style={[styles.statValue, { color: theme.colors.primary }]}>0</Text>
+            <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>Cards Owned</Text>
           </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>0</Text>
-            <Text style={styles.statLabel}>Total Score</Text>
+          <View style={[styles.statCard, { backgroundColor: theme.colors.surface }]}>
+            <Text style={[styles.statValue, { color: theme.colors.primary }]}>0</Text>
+            <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>Total Score</Text>
           </View>
         </View>
 
-        <View style={styles.menu}>
-          <TouchableOpacity style={styles.menuItem}>
-            <Ionicons name="sync" size={24} color="#333" />
-            <Text style={styles.menuText}>Sync Activities</Text>
-            <Ionicons name="chevron-forward" size={24} color="#ccc" />
+        <View style={[styles.menu, { backgroundColor: theme.colors.surface }]}>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: theme.colors.border }]}>
+            <Ionicons name="sync" size={24} color={theme.colors.text} />
+            <Text style={[styles.menuText, { color: theme.colors.text }]}>Sync Activities</Text>
+            <Ionicons name="chevron-forward" size={24} color={theme.colors.disabled} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
-            <Ionicons name="receipt" size={24} color="#333" />
-            <Text style={styles.menuText}>Transaction History</Text>
-            <Ionicons name="chevron-forward" size={24} color="#ccc" />
+          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: theme.colors.border }]}>
+            <Ionicons name="receipt" size={24} color={theme.colors.text} />
+            <Text style={[styles.menuText, { color: theme.colors.text }]}>Transaction History</Text>
+            <Ionicons name="chevron-forward" size={24} color={theme.colors.disabled} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
-            <Ionicons name="settings" size={24} color="#333" />
-            <Text style={styles.menuText}>Settings</Text>
-            <Ionicons name="chevron-forward" size={24} color="#ccc" />
+          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: theme.colors.border }]}>
+            <Ionicons name="moon" size={24} color={theme.colors.text} />
+            <Text style={[styles.menuText, { color: theme.colors.text }]}>Theme</Text>
+            <ThemeToggle size="small" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={handleSignOut}>
-            <Ionicons name="log-out" size={24} color="#FF6B35" />
-            <Text style={[styles.menuText, { color: '#FF6B35' }]}>Sign Out</Text>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: theme.colors.border }]}>
+            <Ionicons name="settings" size={24} color={theme.colors.text} />
+            <Text style={[styles.menuText, { color: theme.colors.text }]}>Settings</Text>
+            <Ionicons name="chevron-forward" size={24} color={theme.colors.disabled} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: 'transparent' }]} onPress={handleSignOut}>
+            <Ionicons name="log-out" size={24} color={theme.colors.primary} />
+            <Text style={[styles.menuText, { color: theme.colors.primary }]}>Sign Out</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -78,7 +87,6 @@ export function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   content: {
     flex: 1,
@@ -92,7 +100,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#eee',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -100,12 +107,10 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
   },
   stats: {
     flexDirection: 'row',
@@ -114,7 +119,6 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: 'white',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -122,15 +126,12 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FF6B35',
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
   },
   menu: {
-    backgroundColor: 'white',
     borderRadius: 12,
     overflow: 'hidden',
   },
@@ -140,12 +141,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
   },
   menuText: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
     marginLeft: 12,
   },
 });

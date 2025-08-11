@@ -7,11 +7,13 @@ import { useFocusEffect } from '@react-navigation/native';
 import { CardGrid } from '../components/CardGrid';
 import { CardModal } from '../components/CardModal';
 import { Card, cardApi, CollectionStats } from '../services/api';
+import { useTheme } from '../contexts/ThemeContext';
 
 type FilterType = 'all' | 'owned' | 'unowned';
 type SortType = 'rarity' | 'name' | 'sport' | 'score';
 
 export function CollectionScreen() {
+  const { theme } = useTheme();
   const [collection, setCollection] = useState<Card[]>([]);
   const [stats, setStats] = useState<CollectionStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -120,26 +122,26 @@ export function CollectionScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>My Collection</Text>
+      <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
+        <Text style={[styles.title, { color: theme.colors.text }]}>My Collection</Text>
         {stats && (
           <View style={styles.stats}>
-            <Text style={styles.statText}>
+            <Text style={[styles.statText, { color: theme.colors.textSecondary }]}>
               {stats.uniqueCards}/{stats.rarityBreakdown.COMMON.total + 
                 stats.rarityBreakdown.UNCOMMON.total + 
                 stats.rarityBreakdown.RARE.total + 
                 stats.rarityBreakdown.EPIC.total + 
                 stats.rarityBreakdown.LEGENDARY.total} cards
             </Text>
-            <Text style={styles.statText}>Score: {stats.collectionScore}</Text>
+            <Text style={[styles.statText, { color: theme.colors.textSecondary }]}>Score: {stats.collectionScore}</Text>
           </View>
         )}
       </View>
 
       {/* Filters */}
-      <View style={styles.filterContainer}>
+      <View style={[styles.filterContainer, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false} 
