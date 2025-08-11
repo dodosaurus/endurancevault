@@ -85,7 +85,7 @@ export class ActivityService {
     });
   }
 
-  generateMapThumbnailUrl(polyline: string, size = '200x120'): string {
+  generateMapThumbnailUrl(polyline: string, size = '300x180'): string {
     if (!polyline || !process.env.GOOGLE_MAPS_API_KEY) {
       return '';
     }

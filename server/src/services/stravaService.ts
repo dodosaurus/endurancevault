@@ -62,7 +62,7 @@ export class StravaService {
     }
   }
 
-  generateMapThumbnailUrl(polyline: string, size = '200x120'): string {
+  generateMapThumbnailUrl(polyline: string, size = '300x180'): string {
     if (!process.env.GOOGLE_MAPS_API_KEY) {
       return ''; // Return empty if no API key configured
     }

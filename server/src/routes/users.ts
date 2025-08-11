@@ -55,7 +55,7 @@ router.get('/activities', authenticateToken, async (req: AuthenticatedRequest, r
         startDate: activity.startDate,
         currencyEarned: activity.currencyEarned,
         mapThumbnailUrl: activity.summaryPolyline 
-          ? activityService.generateMapThumbnailUrl(activity.summaryPolyline, '200x120')
+          ? activityService.generateMapThumbnailUrl(activity.summaryPolyline, '300x180')
           : null,
       })),
     });

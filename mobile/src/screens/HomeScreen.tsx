@@ -351,8 +351,8 @@ const styles = StyleSheet.create({
     color: '#999',
   },
   mapThumbnail: {
-    width: 80,
-    height: 60,
+    width: 120,
+    height: 90,
     borderRadius: 8,
     backgroundColor: '#f0f0f0',
   },

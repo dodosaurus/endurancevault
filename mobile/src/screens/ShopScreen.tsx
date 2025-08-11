@@ -1,15 +1,54 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { boosterApi, BoosterPackContents } from '../services/api';
+import { BoosterOpenModal } from '../components/BoosterOpenModal';
 
 export function ShopScreen() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
+  const [isOpening, setIsOpening] = useState(false);
+  const [showBoosterResult, setShowBoosterResult] = useState(false);
+  const [lastOpenedPack, setLastOpenedPack] = useState<BoosterPackContents | null>(null);
 
-  const handleOpenBooster = () => {
-    // TODO: Implement booster opening
-    console.log('Opening booster pack...');
+  const handleOpenBooster = async () => {
+    if (!user || user.currency < 100) {
+      Alert.alert('Insufficient Currency', 'You need at least 100 coins to open a booster pack!');
+      return;
+    }
+
+    setIsOpening(true);
+    
+    try {
+      const result = await boosterApi.openBoosterPack();
+      
+      // Update user currency immediately
+      await refreshUser();
+      
+      // Show the booster opening animation
+      setLastOpenedPack(result.contents);
+      setShowBoosterResult(true);
+      
+    } catch (error) {
+      console.error('Failed to open booster pack:', error);
+      
+      let errorMessage = 'Failed to open booster pack. Please try again.';
+      if (error instanceof Error) {
+        if (error.message.includes('Insufficient currency')) {
+          errorMessage = 'Not enough currency to open a booster pack!';
+        }
+      }
+      
+      Alert.alert('Error', errorMessage);
+    } finally {
+      setIsOpening(false);
+    }
+  };
+
+  const handleBoosterResultClose = () => {
+    setShowBoosterResult(false);
+    setLastOpenedPack(null);
   };
 
   return (
@@ -50,17 +89,24 @@ export function ShopScreen() {
             <TouchableOpacity 
               style={[
                 styles.buyButton,
-                (user?.currency || 0) < 100 && styles.buyButtonDisabled
+                ((user?.currency || 0) < 100 || isOpening) && styles.buyButtonDisabled
               ]}
               onPress={handleOpenBooster}
-              disabled={(user?.currency || 0) < 100}
+              disabled={(user?.currency || 0) < 100 || isOpening}
             >
-              <Text style={[
-                styles.buyButtonText,
-                (user?.currency || 0) < 100 && styles.buyButtonTextDisabled
-              ]}>
-                Open Pack
-              </Text>
+              {isOpening ? (
+                <View style={styles.buttonLoadingContainer}>
+                  <Ionicons name="hourglass" size={16} color="white" />
+                  <Text style={styles.buyButtonText}>Opening...</Text>
+                </View>
+              ) : (
+                <Text style={[
+                  styles.buyButtonText,
+                  (user?.currency || 0) < 100 && styles.buyButtonTextDisabled
+                ]}>
+                  Open Pack
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -74,6 +120,13 @@ export function ShopScreen() {
           </View>
         )}
       </View>
+      
+      {/* Booster Opening Modal */}
+      <BoosterOpenModal 
+        visible={showBoosterResult}
+        pack={lastOpenedPack}
+        onClose={handleBoosterResultClose}
+      />
     </SafeAreaView>
   );
 }
@@ -181,6 +234,11 @@ const styles = StyleSheet.create({
   },
   buyButtonTextDisabled: {
     color: '#999',
+  },
+  buttonLoadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   insufficientFunds: {
     flexDirection: 'row',
