@@ -5,7 +5,6 @@ import {
   Modal, 
   StyleSheet, 
   TouchableOpacity, 
-  Image, 
   ScrollView,
   Dimensions 
 } from 'react-native';
@@ -62,19 +61,11 @@ export function CardModal({ card, visible, onClose }: CardModalProps) {
             </View>
 
             <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-              {/* Card Image */}
+              {/* Card Placeholder */}
               <View style={[styles.cardContainer, { borderColor: rarityColor }]}>
-                {card.imageUrl ? (
-                  <Image 
-                    source={{ uri: card.imageUrl }}
-                    style={styles.cardImage}
-                    resizeMode="cover"
-                  />
-                ) : (
-                  <View style={[styles.placeholderImage, { backgroundColor: `${rarityColor}20` }]}>
-                    <Ionicons name="person" size={80} color={rarityColor} />
-                  </View>
-                )}
+                <View style={[styles.placeholderImage, { backgroundColor: `${rarityColor}20` }]}>
+                  <Ionicons name="person" size={80} color={rarityColor} />
+                </View>
                 
                 {/* Rarity Badge */}
                 <View style={[styles.rarityBadge, { backgroundColor: rarityColor }]}>
@@ -99,18 +90,14 @@ export function CardModal({ card, visible, onClose }: CardModalProps) {
               <View style={styles.details}>
                 <Text style={styles.cardName}>{card.name}</Text>
                 
-                <View style={styles.detailRow}>
-                  <View style={styles.detailItem}>
-                    <Text style={styles.detailLabel}>Sport</Text>
-                    <Text style={styles.detailValue}>{card.sport}</Text>
-                  </View>
-                  {card.nationality && (
+                {card.nationality && (
+                  <View style={styles.detailRow}>
                     <View style={styles.detailItem}>
                       <Text style={styles.detailLabel}>Country</Text>
                       <Text style={styles.detailValue}>{card.nationality}</Text>
                     </View>
-                  )}
-                </View>
+                  </View>
+                )}
 
                 <View style={styles.detailRow}>
                   <View style={styles.detailItem}>
@@ -195,10 +182,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     overflow: 'hidden',
     position: 'relative',
-  },
-  cardImage: {
-    width: '100%',
-    aspectRatio: 3/4,
   },
   placeholderImage: {
     width: '100%',

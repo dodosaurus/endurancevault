@@ -108,9 +108,7 @@ export const userApi = {
 export interface Card {
   id: number;
   name: string;
-  sport: string;
   rarity: 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
-  imageUrl?: string;
   description?: string;
   nationality?: string;
   birthYear?: number;
@@ -143,7 +141,6 @@ export interface BoosterPackContents {
 export const cardApi = {
   getAllCards: async (filters?: {
     rarity?: string;
-    sport?: string;
     name?: string;
     nationality?: string;
     page?: number;
@@ -161,7 +158,6 @@ export const cardApi = {
   }> => {
     const params = new URLSearchParams();
     if (filters?.rarity) params.append('rarity', filters.rarity);
-    if (filters?.sport) params.append('sport', filters.sport);
     if (filters?.name) params.append('name', filters.name);
     if (filters?.nationality) params.append('nationality', filters.nationality);
     if (filters?.page) params.append('page', filters.page.toString());
@@ -180,7 +176,6 @@ export const cardApi = {
 
   getUserCollection: async (filters?: {
     rarity?: string;
-    sport?: string;
     name?: string;
     nationality?: string;
     owned?: boolean;
@@ -190,7 +185,6 @@ export const cardApi = {
   }> => {
     const params = new URLSearchParams();
     if (filters?.rarity) params.append('rarity', filters.rarity);
-    if (filters?.sport) params.append('sport', filters.sport);
     if (filters?.name) params.append('name', filters.name);
     if (filters?.nationality) params.append('nationality', filters.nationality);
     if (filters?.owned) params.append('owned', filters.owned.toString());

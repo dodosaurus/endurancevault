@@ -55,8 +55,6 @@ export interface BoosterContents {
     id: number;
     name: string;
     rarity: CardRarity;
-    sport: string;
-    imageUrl?: string;
   }>;
 }
 

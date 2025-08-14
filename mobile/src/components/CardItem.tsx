@@ -1,13 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 export interface Card {
   id: number;
   name: string;
-  sport: string;
   rarity: 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
-  imageUrl?: string;
   description?: string;
   nationality?: string;
   birthYear?: number;
@@ -57,7 +55,7 @@ export const CardItem = React.memo(({ card, onPress, style }: CardItemProps) => 
           <Text style={styles.rarityText}>{card.rarity[0]}</Text>
         </View>
 
-        {/* Mystery card image */}
+        {/* Mystery card placeholder */}
         <View style={styles.imageContainer}>
           <View style={[styles.mysteryCard, { backgroundColor: `${rarityColor}15` }]}>
             <View style={[styles.mysteryIcon, { borderColor: rarityColor }]}>
@@ -91,19 +89,11 @@ export const CardItem = React.memo(({ card, onPress, style }: CardItemProps) => 
         <Text style={styles.rarityText}>{card.rarity[0]}</Text>
       </View>
 
-      {/* Card image */}
+      {/* Card placeholder */}
       <View style={styles.imageContainer}>
-        {card.imageUrl ? (
-          <Image 
-            source={{ uri: card.imageUrl }}
-            style={styles.cardImage}
-            resizeMode="cover"
-          />
-        ) : (
-          <View style={[styles.placeholderImage, { backgroundColor: `${rarityColor}20` }]}>
-            <Ionicons name="person" size={40} color={rarityColor} />
-          </View>
-        )}
+        <View style={[styles.placeholderImage, { backgroundColor: `${rarityColor}20` }]}>
+          <Ionicons name="person" size={40} color={rarityColor} />
+        </View>
         
         {/* Owned indicator */}
         <View style={styles.ownedBadge}>
@@ -115,7 +105,6 @@ export const CardItem = React.memo(({ card, onPress, style }: CardItemProps) => 
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>{card.name}</Text>
         <View style={styles.details}>
-          <Text style={styles.sport}>{card.sport}</Text>
           {card.nationality && (
             <Text style={styles.nationality}>{card.nationality}</Text>
           )}
@@ -175,10 +164,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     aspectRatio: 3/4,
   },
-  cardImage: {
-    width: '100%',
-    height: '100%',
-  },
   placeholderImage: {
     width: '100%',
     height: '100%',
@@ -223,10 +208,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
-  },
-  sport: {
-    fontSize: 12,
-    color: '#666',
   },
   nationality: {
     fontSize: 12,

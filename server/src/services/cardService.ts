@@ -4,7 +4,6 @@ const prisma = new PrismaClient();
 
 export interface CardFilter {
   rarity?: CardRarity;
-  sport?: string;
   name?: string;
   nationality?: string;
 }
@@ -12,9 +11,7 @@ export interface CardFilter {
 export interface CardWithCollection {
   id: number;
   name: string;
-  sport: string;
   rarity: CardRarity;
-  imageUrl: string | null;
   description: string | null;
   nationality: string | null;
   birthYear: number | null;
@@ -36,12 +33,6 @@ export class CardService {
       where.rarity = filters.rarity;
     }
     
-    if (filters?.sport) {
-      where.sport = {
-        contains: filters.sport,
-        mode: 'insensitive'
-      };
-    }
     
     if (filters?.name) {
       where.name = {
@@ -81,12 +72,6 @@ export class CardService {
       where.rarity = filters.rarity;
     }
     
-    if (filters?.sport) {
-      where.sport = {
-        contains: filters.sport,
-        mode: 'insensitive'
-      };
-    }
     
     if (filters?.name) {
       where.name = {
@@ -123,9 +108,7 @@ export class CardService {
     return cards.map(card => ({
       id: card.id,
       name: card.name,
-      sport: card.sport,
       rarity: card.rarity,
-      imageUrl: card.imageUrl,
       description: card.description,
       nationality: card.nationality,
       birthYear: card.birthYear,

@@ -7,9 +7,7 @@ export interface BoosterPackContents {
   cards: {
     id: number;
     name: string;
-    sport: string;
     rarity: CardRarity;
-    imageUrl: string | null;
     description: string | null;
     nationality: string | null;
     birthYear: number | null;
@@ -293,9 +291,7 @@ export class BoosterService {
       cards: booster.cards.map(boosterCard => ({
         id: boosterCard.card.id,
         name: boosterCard.card.name,
-        sport: boosterCard.card.sport,
         rarity: boosterCard.card.rarity,
-        imageUrl: boosterCard.card.imageUrl,
         baseScore: boosterCard.card.baseScore
       })),
       totalValue: booster.cards.reduce((sum, boosterCard) => sum + boosterCard.card.baseScore, 0),
