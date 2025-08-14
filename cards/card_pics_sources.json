@@ -21,8 +21,5 @@
     "https://www.lidl-trek.com/en/team/",
     "https://www.team-totalenergies.com/en/team/",
     "https://www.uno-x.no/en/team/"
-  ],
-  "description": "Team websites with rider photos for potential card image sourcing",
-  "note": "These URLs contain official team photos of World Tour cyclists that could be used for card images with proper licensing",
-  "usage": "Reference for future image collection when implementing actual cyclist photos instead of placeholders"
+  ]
 }
