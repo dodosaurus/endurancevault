@@ -104,16 +104,27 @@ CREATE INDEX idx_cards_sport ON cards(sport);
 CREATE INDEX idx_cards_name ON cards(name);
 ```
 
-#### Rarity Distribution
+#### Card ID Structure (2025 World Tour Collection)
+Current cards use sequential IDs organized by rarity:
+- **ID 1**: Legendary card (Tadej Pogačar)
+- **IDs 2-5**: Epic cards (top 4 performers)
+- **IDs 6-20**: Rare cards (Monument winners, world champions)
+- **IDs 21-54**: Uncommon cards (stage winners, strong performers)
+- **IDs 55-135**: Common cards (professional World Tour riders)
+- **Next available ID**: 136 (ready for future collections)
+
+#### Rarity Distribution (Current: World Tour Cyclists 2025)
 ```typescript
 const RARITY_DISTRIBUTION = {
-  COMMON: 50,      // Regional/national champions
-  UNCOMMON: 30,    // Olympic medalists, tournament winners
-  RARE: 15,        // Hall of famers, record holders
-  EPIC: 4,         // Modern legends (Jordan, Serena, Messi, etc.)
-  LEGENDARY: 1     // Ultimate GOAT card
+  COMMON: 81,      // Professional World Tour riders
+  UNCOMMON: 34,    // Stage winners and strong performers
+  RARE: 15,        // Monument winners and classics specialists
+  EPIC: 4,         // Grand Tour podium finishers and world champions
+  LEGENDARY: 1     // Current cycling GOAT (Tadej Pogačar)
 };
 ```
+
+> **Note**: Collection updated August 2025 to feature World Tour cyclists exclusively. See [Migration Log](../migration-log.md) for details.
 
 #### Base Scores
 ```typescript

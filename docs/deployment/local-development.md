@@ -85,6 +85,9 @@ npx prisma db push
 
 # Generate Prisma client
 npx prisma generate
+
+# Seed database with World Tour cyclists (2025 collection)
+npx tsx prisma/seed-cards-worldtour.ts
 ```
 
 ### 3. Start Development Server

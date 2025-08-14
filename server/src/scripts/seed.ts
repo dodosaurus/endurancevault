@@ -1,10 +1,16 @@
-import { seedCards } from '../../prisma/seed-cards'
+import { PrismaClient } from '@prisma/client'
+import { exec } from 'child_process'
+import { promisify } from 'util'
+
+const execAsync = promisify(exec)
 
 async function main() {
   console.log('🌱 Starting database seeding...')
   
   try {
-    await seedCards()
+    // Run the World Tour cyclists seeding script
+    console.log('Running World Tour cyclist card seeding...')
+    await execAsync('npx tsx prisma/seed-cards-worldtour.ts')
     
     console.log('✅ Database seeding completed successfully!')
   } catch (error) {

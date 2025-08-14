@@ -1,7 +1,7 @@
 # Endurance Vault Documentation
 
 ## Project Overview
-A companion mobile app for Strava users that gamifies fitness activities through a collectible card system featuring legendary athletes.
+A companion mobile app for Strava users that gamifies fitness activities through a collectible card system featuring World Tour cyclists.
 
 ## Documentation Structure
 
@@ -44,6 +44,10 @@ A companion mobile app for Strava users that gamifies fitness activities through
 - ✅ Card collection display with filtering, sorting, and detailed modal
 - ✅ Shop screen with booster purchasing functionality
 - ✅ User profile management and theme switching
+- ✅ **World Tour Cyclist Collection (Aug 2025)**: 135 professional cyclists with detailed achievements
 - 🚧 Real-time activity sync via Strava webhooks (future)
 - 🚧 Push notifications (future)
 - 🚧 Card trading and social features (future)
+
+## Recent Updates
+- **August 2025**: Major collection migration to World Tour cyclists ([Migration Log](./migration-log.md))

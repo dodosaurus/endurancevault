@@ -251,7 +251,7 @@ export class BoosterService {
   /**
    * Calculate rarity breakdown for pack contents
    */
-  private calculateRarityBreakdown(cards: any[]): { [key in CardRarity]?: number } {
+  private calculateRarityBreakdown(cards: { rarity: CardRarity }[]): { [key in CardRarity]?: number } {
     const breakdown: { [key in CardRarity]?: number } = {};
     
     cards.forEach(card => {

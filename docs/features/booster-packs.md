@@ -155,9 +155,9 @@ const BoosterPackCard = ({ userCurrency, onPurchase }: BoosterPackProps) => {
     <View style={styles.boosterCard}>
       <Ionicons name="gift" size={48} color="#FF6B35" />
       
-      <Text style={styles.title}>Athlete Booster Pack</Text>
+      <Text style={styles.title}>Cyclist Booster Pack</Text>
       <Text style={styles.description}>
-        Contains 4 cards with a chance for rare athletes
+        Contains 4 cards with a chance for rare cyclists
       </Text>
       
       <View style={styles.contents}>

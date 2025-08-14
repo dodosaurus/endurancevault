@@ -24,6 +24,11 @@ export const CardGrid = React.memo(({
     [numColumns]
   );
 
+  const itemHeight = useMemo(() => 
+    cardWidth * (4/3) + 80, // image aspect ratio + info section
+    [cardWidth]
+  );
+
   const renderCard = useCallback(({ item, index }: { item: Card; index: number }) => {
     const isLastInRow = (index + 1) % numColumns === 0;
     const cardStyle = {
@@ -35,16 +40,15 @@ export const CardGrid = React.memo(({
     return (
       <CardItem
         card={item}
-        onPress={() => onCardPress(item)}
+        onPress={onCardPress}
         style={cardStyle}
       />
     );
   }, [cardWidth, numColumns, onCardPress]);
 
-  const keyExtractor = useCallback((item: Card) => item.id.toString(), []);
+  const keyExtractor = useCallback((item: Card) => `card-${item.id}`, []);
 
   const getItemLayout = useCallback((data: Card[] | null | undefined, index: number) => {
-    const itemHeight = cardWidth * (4/3) + 80; // image aspect ratio + info section
     const rowIndex = Math.floor(index / numColumns);
     const offset = rowIndex * (itemHeight + CARD_SPACING) + 16; // 16 is top padding
     
@@ -53,7 +57,7 @@ export const CardGrid = React.memo(({
       offset,
       index,
     };
-  }, [cardWidth, numColumns]);
+  }, [itemHeight, numColumns]);
 
   return (
     <FlatList
@@ -66,12 +70,23 @@ export const CardGrid = React.memo(({
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
       removeClippedSubviews={true}
-      maxToRenderPerBatch={10}
-      updateCellsBatchingPeriod={50}
-      initialNumToRender={6}
-      windowSize={10}
+      maxToRenderPerBatch={8}
+      updateCellsBatchingPeriod={100}
+      initialNumToRender={8}
+      windowSize={5}
       legacyImplementation={false}
+      disableVirtualization={false}
     />
+  );
+}, (prevProps, nextProps) => {
+  // Custom comparison to prevent unnecessary re-renders
+  return (
+    prevProps.cards.length === nextProps.cards.length &&
+    prevProps.numColumns === nextProps.numColumns &&
+    prevProps.cards.every((card, index) => 
+      card.id === nextProps.cards[index]?.id &&
+      card.owned?.quantity === nextProps.cards[index]?.owned?.quantity
+    )
   );
 });
 

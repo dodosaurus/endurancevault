@@ -1,7 +1,7 @@
 # Endurance Vault - Project Documentation
 
 ## Overview
-A companion mobile app for Strava users that gamifies fitness activities through a collectible card system featuring legendary endurance athletes from cycling, road running (marathons, track), and trail/ultra running. Users earn in-app currency based on their activities and use it to purchase booster packs.
+A companion mobile app for Strava users that gamifies fitness activities through a collectible card system featuring World Tour cyclists. Users earn in-app currency based on their activities and use it to purchase booster packs. The collection changes annually with new sets of cyclists.
 
 ## 📚 Complete Documentation
 See `/docs/` folder for comprehensive modular documentation:
@@ -62,14 +62,14 @@ endurancevault/
 
 ## Card Collection System
 
-### Theme: Legendary Endurance Athletes
-- **Total Cards**: 100 cards featuring legendary endurance athletes from cycling, road running, and trail/ultra running
+### Theme: World Tour Cyclists
+- **Total Cards**: 135 cards featuring current World Tour professional cyclists
 - **Rarity Distribution**:
-  - Common (49 cards): Strong endurance athletes across disciplines
-  - Uncommon (31 cards - Green): Notable champions and major race winners
-  - Rare (15 cards - Blue): Hall of famers, record holders, legends
-  - Epic (4 cards - Purple): Endurance icons (Merckx, Jornet, Zátopek, Gebrselassie)
-  - Legendary (1 card - Orange): Ultimate endurance GOAT (Eliud Kipchoge)
+  - Common (81 cards): Professional World Tour riders
+  - Uncommon (34 cards - Green): Stage winners and strong performers
+  - Rare (15 cards - Blue): Monument winners and classics specialists
+  - Epic (4 cards - Purple): Grand Tour podium finishers and world champions
+  - Legendary (1 card - Orange): Current cycling GOAT (Tadej Pogačar)
 
 ### Booster System
 - **Cost**: 100 coins per booster pack
@@ -94,7 +94,7 @@ endurancevault/
 
 ### Core Tables
 - `users`: Strava user data, currency balance
-- `cards`: Card definitions (athlete info, rarity, image URL)
+- `cards`: Card definitions (cyclist info, rarity, image URL)
 - `user_cards`: User's card collection with quantities
 - `activities`: Cached Strava activity data
 - `transactions`: Currency earning/spending history

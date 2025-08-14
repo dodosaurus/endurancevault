@@ -44,6 +44,42 @@ export const CardItem = React.memo(({ card, onPress, style }: CardItemProps) => 
   const rarityColor = RARITY_COLORS[card.rarity];
   const isOwned = card.owned && card.owned.quantity > 0;
 
+  // For unowned cards, show minimal placeholder
+  if (!isOwned) {
+    return (
+      <TouchableOpacity 
+        style={[styles.container, styles.unownedContainer, { borderColor: rarityColor }, style]} 
+        onPress={onPress}
+        activeOpacity={0.8}
+      >
+        {/* Rarity indicator */}
+        <View style={[styles.rarityIndicator, { backgroundColor: rarityColor }]}>
+          <Text style={styles.rarityText}>{card.rarity[0]}</Text>
+        </View>
+
+        {/* Mystery card image */}
+        <View style={styles.imageContainer}>
+          <View style={[styles.mysteryCard, { backgroundColor: `${rarityColor}15` }]}>
+            <View style={[styles.mysteryIcon, { borderColor: rarityColor }]}>
+              <Ionicons name="person" size={32} color={rarityColor} />
+            </View>
+          </View>
+        </View>
+
+        {/* Minimal info */}
+        <View style={styles.info}>
+          <View style={styles.mysteryDetails}>
+            <Text style={[styles.rarity, { color: rarityColor }]}>
+              {card.rarity}
+            </Text>
+            <Text style={styles.score}>{card.baseScore}pt</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  // For owned cards, show full details
   return (
     <TouchableOpacity 
       style={[styles.container, { borderColor: rarityColor }, style]} 
@@ -70,18 +106,9 @@ export const CardItem = React.memo(({ card, onPress, style }: CardItemProps) => 
         )}
         
         {/* Owned indicator */}
-        {isOwned && (
-          <View style={styles.ownedBadge}>
-            <Text style={styles.ownedText}>x{card.owned!.quantity}</Text>
-          </View>
-        )}
-
-        {/* New card indicator */}
-        {!isOwned && (
-          <View style={styles.notOwnedOverlay}>
-            <Ionicons name="lock-closed" size={24} color="#999" />
-          </View>
-        )}
+        <View style={styles.ownedBadge}>
+          <Text style={styles.ownedText}>x{card.owned!.quantity}</Text>
+        </View>
       </View>
 
       {/* Card info */}
@@ -102,6 +129,12 @@ export const CardItem = React.memo(({ card, onPress, style }: CardItemProps) => 
       </View>
     </TouchableOpacity>
   );
+}, (prevProps, nextProps) => {
+  // Custom comparison for better performance
+  return (
+    prevProps.card.id === nextProps.card.id &&
+    prevProps.card.owned?.quantity === nextProps.card.owned?.quantity
+  );
 });
 
 CardItem.displayName = 'CardItem';
@@ -117,6 +150,10 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
     overflow: 'hidden',
+  },
+  unownedContainer: {
+    backgroundColor: '#f8f9fa',
+    opacity: 0.8,
   },
   rarityIndicator: {
     position: 'absolute',
@@ -210,5 +247,28 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#999',
     fontWeight: '500',
+  },
+  // Mystery card styles
+  mysteryCard: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  mysteryIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  },
+  mysteryDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
   },
 });

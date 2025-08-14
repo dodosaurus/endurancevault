@@ -1,20 +1,20 @@
 # Card Collection System
 
 ## Overview
-The card collection features 100 legendary endurance athletes specializing in cycling, road running (marathons, track), and trail/ultra running, organized into 5 rarity tiers. Users collect cards by opening booster packs purchased with in-app currency.
+The card collection features 135 World Tour cyclists organized into 5 rarity tiers. Users collect cards by opening booster packs purchased with in-app currency. The collection changes annually with new cyclists.
 
 ## Card Collection Structure
 
-### Total Collection: 100 Cards
+### Total Collection: 135 Cards
 
 #### Rarity Distribution
 ```typescript
 enum CardRarity {
-  COMMON = 49 cards,      // Strong endurance athletes across disciplines
-  UNCOMMON = 31 cards,    // Notable champions and major race winners
-  RARE = 15 cards,        // Hall of famers, record holders, legends
-  EPIC = 4 cards,         // Endurance icons (Merckx, Jornet, Zátopek, etc.)
-  LEGENDARY = 1 card      // Ultimate endurance GOAT (Eliud Kipchoge)
+  COMMON = 81 cards,      // Professional World Tour riders
+  UNCOMMON = 34 cards,    // Stage winners and strong performers
+  RARE = 15 cards,        // Monument winners and classics specialists
+  EPIC = 4 cards,         // Grand Tour podium finishers and world champions
+  LEGENDARY = 1 card      // Current cycling GOAT (Tadej Pogačar)
 }
 ```
 
@@ -35,8 +35,8 @@ const rarityColors = {
 ```sql
 cards:
   id: serial primary key
-  name: varchar -- Athlete name
-  sport: varchar -- Cycling, Marathon, Distance Running, Trail/Ultra Running
+  name: varchar -- Cyclist name
+  sport: varchar -- Road Cycling (World Tour)
   rarity: enum (COMMON, UNCOMMON, RARE, EPIC, LEGENDARY)
   image_url: varchar -- Card image URL
   description: text -- Notable achievements
@@ -50,13 +50,13 @@ cards:
 ```typescript
 interface Card {
   id: number;
-  name: string;           // "Eliud Kipchoge"
-  sport: string;          // "Marathon"
+  name: string;           // "Tadej Pogačar"
+  sport: string;          // "Road Cycling"
   rarity: CardRarity;     // LEGENDARY
   imageUrl?: string;      // Card artwork
-  description?: string;   // "Marathon GOAT - 2:01:09 WR, 2x Olympic champion"
-  nationality?: string;   // "Kenya"
-  birthYear?: number;     // 1984
+  description?: string;   // "2x Tour de France winner, Monument specialist"
+  nationality?: string;   // "Slovenia"
+  birthYear?: number;     // 1998
   baseScore: number;      // Points for collection score
 }
 ```
@@ -126,22 +126,22 @@ const getCollectionProgress = async (userId: number) => {
   
   return {
     cardsOwned: totalCards,
-    totalCards: 100,
-    completionPercentage: (totalCards / 100) * 100,
+    totalCards: 135,
+    completionPercentage: (totalCards / 135) * 100,
     totalScore
   };
 };
 ```
 
-## Sample Endurance Athletes by Rarity
+## Sample World Tour Cyclists by Rarity
 
 ### Legendary (1 card)
 ```typescript
 {
-  name: "Eliud Kipchoge",
-  sport: "Marathon", 
-  description: "Marathon GOAT - 2:01:09 WR, 2x Olympic champion, first sub-2 hour",
-  nationality: "Kenya",
+  name: "Tadej Pogačar",
+  sport: "Road Cycling", 
+  description: "2x Tour de France winner, Monument specialist, cycling phenomenon",
+  nationality: "Slovenia",
   rarity: "LEGENDARY"
 }
 ```
@@ -149,21 +149,21 @@ const getCollectionProgress = async (userId: number) => {
 ### Epic (4 cards)
 ```typescript
 [
-  { name: "Eddy Merckx", sport: "Cycling", nationality: "Belgium" },
-  { name: "Kilian Jornet", sport: "Trail/Ultra Running", nationality: "Spain" },
-  { name: "Emil Zátopek", sport: "Distance Running", nationality: "Czechoslovakia" },
-  { name: "Haile Gebrselassie", sport: "Marathon", nationality: "Ethiopia" }
+  { name: "Jonas Vingegaard", sport: "Road Cycling", nationality: "Denmark" },
+  { name: "Primoz Roglic", sport: "Road Cycling", nationality: "Slovenia" },
+  { name: "Wout van Aert", sport: "Road Cycling", nationality: "Belgium" },
+  { name: "Mathieu van der Poel", sport: "Road Cycling", nationality: "Netherlands" }
 ]
 ```
 
 ### Rare (15 cards)
-Examples: Bernard Hinault (cycling), Paula Radcliffe (marathon), Ann Trason (ultra), etc.
+Examples: Remco Evenepoel, Julian Alaphilippe, Peter Sagan, Filippo Ganna, etc.
 
-### Uncommon (31 cards)  
-Examples: Tadej Pogačar (cycling), Mo Farah (distance), François D'Haene (ultra trail)
+### Uncommon (34 cards)  
+Examples: Jai Hindley, Adam Yates, Sepp Kuss, Michael Matthews, etc.
 
-### Common (49 cards)
-Examples: Jonas Vingegaard (cycling), Ryan Hall (marathon), Jim Walmsley (ultra trail)
+### Common (81 cards)
+Examples: Dylan Groenewegen, Caleb Ewan, Stefan Küng, Tiesj Benoot, etc.
 
 ## Collection UI Features
 
@@ -209,7 +209,7 @@ const CardModal = ({ card, quantity }) => {
 const ProgressStats = ({ progress }) => {
   return (
     <View>
-      <Text>{progress.cardsOwned}/100 cards collected</Text>
+      <Text>{progress.cardsOwned}/135 cards collected</Text>
       <ProgressBar 
         progress={progress.completionPercentage / 100}
         color="#FF6B35" 
@@ -224,7 +224,7 @@ const ProgressStats = ({ progress }) => {
 
 ### Filter Options
 - **By Rarity**: Show only specific rarity cards
-- **By Sport**: Filter by Cycling, Marathon, Distance Running, Trail/Ultra Running
+- **By Team**: Filter by cycling teams or nationality
 - **By Ownership**: Owned vs. not owned
 - **By Nationality**: Filter by country
 
@@ -239,9 +239,26 @@ const searchCards = (cards: Card[], query: string) => {
 };
 ```
 
+## Annual Collection Updates
+
+### 2025 Migration to World Tour Cyclists
+The app was successfully migrated from a multi-sport collection to focus exclusively on World Tour cyclists:
+
+- **Migration Date**: August 2025
+- **Data Source**: ProCyclingStats.com rankings
+- **Collection Size**: 135 World Tour cyclists
+- **Rarity Distribution**: Adjusted for cycling-specific achievements
+- **Database Migration**: Complete replacement of card collection
+
+### Future Collection Plans
+- **Annual Updates**: New cyclist collections each season
+- **Ranking-Based Selection**: Top 135 riders from current World Tour rankings
+- **Achievement Research**: Detailed descriptions for each cyclist
+- **Rarity Rebalancing**: Adjust distribution based on current performance
+
 ## Future Features
 - **Trading System**: Exchange duplicate cards with friends
 - **Achievements**: Unlock rewards for collection milestones
-- **Seasonal Cards**: Limited-time athlete cards
+- **Annual Collection Events**: Special packs for new season launches
 - **Card Evolution**: Upgrade cards with duplicates
 - **Leaderboards**: Compare collection progress with others

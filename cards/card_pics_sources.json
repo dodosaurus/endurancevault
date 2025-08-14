@@ -1,0 +1,28 @@
+{
+  "sources": [
+    "https://www.uaeteamemirates.com/team/",
+    "https://www.teamvismaleaseabike.com/team/?team=286338",
+    "https://greenedgecycling.com/2024/2025mens-team/",
+    "https://www.redbullborahansgrohe.com/en/team/",
+    "https://www.alpecindeceuninck.com/en/team/",
+    "https://www.soudal-quickstep.com/en/team/",
+    "https://www.lotto-dstny.be/en/team/men/",
+    "https://www.bahrain-victorious.com/team/",
+    "https://intermarche-wanty.com/en/team/",
+    "https://www.team-jayco-alula.com/team/",
+    "https://www.movistarteam.com/en/team/",
+    "https://www.teamvismaleaseabike.com/team/",
+    "https://www.astana-qazaqstan.com/en/team/",
+    "https://www.cofidis.fr/en/team/",
+    "https://www.teamarkea.fr/en/equipe/",
+    "https://www.ef-easypost.com/team/",
+    "https://ineos-grenadiers.com/team/",
+    "https://israel-premiertech.com/team/",
+    "https://www.lidl-trek.com/en/team/",
+    "https://www.team-totalenergies.com/en/team/",
+    "https://www.uno-x.no/en/team/"
+  ],
+  "description": "Team websites with rider photos for potential card image sourcing",
+  "note": "These URLs contain official team photos of World Tour cyclists that could be used for card images with proper licensing",
+  "usage": "Reference for future image collection when implementing actual cyclist photos instead of placeholders"
+}

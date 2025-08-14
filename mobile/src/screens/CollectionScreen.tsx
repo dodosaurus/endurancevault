@@ -9,8 +9,18 @@ import { CardModal } from '../components/CardModal';
 import { Card, cardApi, CollectionStats } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
 
+// Optimize constants
+const RARITY_ORDER = { 'LEGENDARY': 5, 'EPIC': 4, 'RARE': 3, 'UNCOMMON': 2, 'COMMON': 1 };
+const RARITY_COLORS = {
+  COMMON: '#6B7280',
+  UNCOMMON: '#10B981',
+  RARE: '#3B82F6',
+  EPIC: '#8B5CF6',
+  LEGENDARY: '#FFA500',
+};
+
 type FilterType = 'all' | 'owned' | 'unowned';
-type SortType = 'rarity' | 'name' | 'sport' | 'score';
+type SortType = 'rarity' | 'name';
 
 export function CollectionScreen() {
   const { theme } = useTheme();
@@ -21,6 +31,7 @@ export function CollectionScreen() {
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const [filter, setFilter] = useState<FilterType>('all');
   const [sortBy, setSortBy] = useState<SortType>('rarity');
+  const [isFiltering, setIsFiltering] = useState(false);
 
   const loadCollection = async (refresh: boolean = false) => {
     try {
@@ -53,6 +64,21 @@ export function CollectionScreen() {
     setSelectedCard(card);
   }, []);
 
+  // Optimized filter change with loading state
+  const handleFilterChange = useCallback((newFilter: FilterType) => {
+    setIsFiltering(true);
+    setFilter(newFilter);
+    // Reset filtering state after a short delay
+    setTimeout(() => setIsFiltering(false), 200);
+  }, []);
+
+  const handleSortChange = useCallback((newSort: SortType) => {
+    setIsFiltering(true);
+    setSortBy(newSort);
+    // Reset filtering state after a short delay
+    setTimeout(() => setIsFiltering(false), 200);
+  }, []);
+
   // Memoize the filtered and sorted collection to avoid expensive re-computations
   const processedCollection = useMemo(() => {
     if (!collection.length) return collection;
@@ -66,18 +92,13 @@ export function CollectionScreen() {
       filtered = filtered.filter(card => !card.owned || card.owned.quantity === 0);
     }
 
-    // Apply sorting
+    // Apply sorting - optimized with pre-calculated constants
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'rarity':
-          const rarityOrder = { 'LEGENDARY': 5, 'EPIC': 4, 'RARE': 3, 'UNCOMMON': 2, 'COMMON': 1 };
-          return rarityOrder[b.rarity] - rarityOrder[a.rarity];
+          return RARITY_ORDER[b.rarity] - RARITY_ORDER[a.rarity];
         case 'name':
           return a.name.localeCompare(b.name);
-        case 'sport':
-          return a.sport.localeCompare(b.sport);
-        case 'score':
-          return b.baseScore - a.baseScore;
         default:
           return 0;
       }
@@ -85,6 +106,29 @@ export function CollectionScreen() {
 
     return filtered;
   }, [collection, filter, sortBy]);
+
+  // Calculate collection progress
+  const collectionProgress = useMemo(() => {
+    if (!collection.length || !stats) return null;
+
+    const owned = collection.filter(card => card.owned && card.owned.quantity > 0);
+    const byRarity = collection.reduce((acc, card) => {
+      const isOwned = card.owned && card.owned.quantity > 0;
+      if (!acc[card.rarity]) {
+        acc[card.rarity] = { owned: 0, total: 0 };
+      }
+      acc[card.rarity].total++;
+      if (isOwned) acc[card.rarity].owned++;
+      return acc;
+    }, {} as Record<string, { owned: number; total: number }>);
+
+    return {
+      totalOwned: owned.length,
+      totalCards: collection.length,
+      percentage: Math.round((owned.length / collection.length) * 100),
+      byRarity
+    };
+  }, [collection, stats]);
 
   const getFilterButtonStyle = (filterType: FilterType) => [
     styles.filterButton,
@@ -103,7 +147,7 @@ export function CollectionScreen() {
           <Ionicons name="grid-outline" size={64} color="#ccc" />
           <Text style={styles.emptyTitle}>No cards owned yet!</Text>
           <Text style={styles.emptySubtitle}>
-            Open your first booster pack to start collecting legendary athletes
+            Open your first booster pack to start collecting World Tour cyclists
           </Text>
         </View>
       );
@@ -132,16 +176,42 @@ export function CollectionScreen() {
       {/* Header */}
       <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
         <Text style={[styles.title, { color: theme.colors.text }]}>My Collection</Text>
-        {stats && (
-          <View style={styles.stats}>
-            <Text style={[styles.statText, { color: theme.colors.textSecondary }]}>
-              {stats.uniqueCards}/{stats.rarityBreakdown.COMMON.total + 
-                stats.rarityBreakdown.UNCOMMON.total + 
-                stats.rarityBreakdown.RARE.total + 
-                stats.rarityBreakdown.EPIC.total + 
-                stats.rarityBreakdown.LEGENDARY.total} cards
-            </Text>
-            <Text style={[styles.statText, { color: theme.colors.textSecondary }]}>Score: {stats.collectionScore}</Text>
+        
+        {collectionProgress && (
+          <View style={styles.progressContainer}>
+            {/* Main progress */}
+            <View style={styles.mainProgress}>
+              <View style={styles.progressBar}>
+                <View 
+                  style={[
+                    styles.progressFill, 
+                    { width: `${collectionProgress.percentage}%` }
+                  ]} 
+                />
+              </View>
+              <Text style={[styles.progressText, { color: theme.colors.textSecondary }]}>
+                {collectionProgress.totalOwned}/{collectionProgress.totalCards} cards ({collectionProgress.percentage}%)
+              </Text>
+            </View>
+
+            {/* Rarity breakdown */}
+            <View style={styles.rarityProgress}>
+              {Object.entries(collectionProgress.byRarity)
+                .sort(([a], [b]) => RARITY_ORDER[b] - RARITY_ORDER[a])
+                .map(([rarity, data]) => (
+                  <View key={rarity} style={styles.rarityItem}>
+                    <View 
+                      style={[
+                        styles.rarityDot, 
+                        { backgroundColor: RARITY_COLORS[rarity] }
+                      ]} 
+                    />
+                    <Text style={[styles.rarityText, { color: theme.colors.textSecondary }]}>
+                      {rarity[0]}: {data.owned}/{data.total}
+                    </Text>
+                  </View>
+                ))}
+            </View>
           </View>
         )}
       </View>
@@ -155,19 +225,19 @@ export function CollectionScreen() {
         >
           <TouchableOpacity 
             style={getFilterButtonStyle('all')} 
-            onPress={() => setFilter('all')}
+            onPress={() => handleFilterChange('all')}
           >
             <Text style={getFilterTextStyle('all')}>All</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={getFilterButtonStyle('owned')} 
-            onPress={() => setFilter('owned')}
+            onPress={() => handleFilterChange('owned')}
           >
             <Text style={getFilterTextStyle('owned')}>Owned</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={getFilterButtonStyle('unowned')} 
-            onPress={() => setFilter('unowned')}
+            onPress={() => handleFilterChange('unowned')}
           >
             <Text style={getFilterTextStyle('unowned')}>Missing</Text>
           </TouchableOpacity>
@@ -176,24 +246,17 @@ export function CollectionScreen() {
           
           <TouchableOpacity 
             style={[styles.sortButton, sortBy === 'rarity' && styles.sortButtonActive]} 
-            onPress={() => setSortBy('rarity')}
+            onPress={() => handleSortChange('rarity')}
           >
             <Ionicons name="star" size={16} color={sortBy === 'rarity' ? 'white' : '#666'} />
             <Text style={[styles.sortText, sortBy === 'rarity' && styles.sortTextActive]}>Rarity</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.sortButton, sortBy === 'name' && styles.sortButtonActive]} 
-            onPress={() => setSortBy('name')}
+            onPress={() => handleSortChange('name')}
           >
             <Ionicons name="text" size={16} color={sortBy === 'name' ? 'white' : '#666'} />
             <Text style={[styles.sortText, sortBy === 'name' && styles.sortTextActive]}>Name</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.sortButton, sortBy === 'sport' && styles.sortButtonActive]} 
-            onPress={() => setSortBy('sport')}
-          >
-            <Ionicons name="fitness" size={16} color={sortBy === 'sport' ? 'white' : '#666'} />
-            <Text style={[styles.sortText, sortBy === 'sport' && styles.sortTextActive]}>Sport</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -205,11 +268,22 @@ export function CollectionScreen() {
           <Text style={styles.loadingText}>Loading collection...</Text>
         </View>
       ) : processedCollection.length > 0 ? (
-        <CardGrid 
-          cards={processedCollection}
-          onCardPress={handleCardPress}
-          style={styles.cardGrid}
-        />
+        <View style={styles.gridContainer}>
+          <CardGrid 
+            cards={processedCollection}
+            onCardPress={handleCardPress}
+            style={styles.cardGrid}
+          />
+          {/* Filtering overlay */}
+          {isFiltering && (
+            <View style={styles.filteringOverlay}>
+              <View style={styles.filteringIndicator}>
+                <Ionicons name="funnel" size={20} color="#FF6B35" />
+                <Text style={styles.filteringText}>Updating...</Text>
+              </View>
+            </View>
+          )}
+        </View>
       ) : (
         <ScrollView 
           style={styles.content}
@@ -247,15 +321,47 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 8,
+    marginBottom: 12,
   },
-  stats: {
-    flexDirection: 'row',
-    gap: 16,
+  progressContainer: {
+    gap: 12,
   },
-  statText: {
+  mainProgress: {
+    gap: 8,
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: '#e5e7eb',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#FF6B35',
+    borderRadius: 4,
+  },
+  progressText: {
     fontSize: 14,
-    color: '#666',
+    fontWeight: '500',
+  },
+  rarityProgress: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  rarityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  rarityDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  rarityText: {
+    fontSize: 12,
+    fontWeight: '500',
   },
   filterContainer: {
     backgroundColor: 'white',
@@ -317,8 +423,42 @@ const styles = StyleSheet.create({
   sortTextActive: {
     color: 'white',
   },
+  gridContainer: {
+    flex: 1,
+    position: 'relative',
+  },
   cardGrid: {
     flex: 1,
+  },
+  filteringOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  filteringIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  filteringText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#FF6B35',
   },
   loadingContainer: {
     flex: 1,
